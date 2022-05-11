@@ -1,0 +1,39 @@
+settings:
+  interval: 5
+  timeout: 10
+  slurmdir: /opt/slurm/bin/
+
+nodeLists:
+  hydraCompute:
+    nodeNames: hydra[01-36]
+  tesla:
+    nodeNames: tesla
+
+tests:
+  - name: Succeedscript
+    script:
+      path: ./testscripts/succeedscript.sh
+
+  - name: Failscript
+    script:
+      path: ./testscripts/failscript.sh
+
+  - name: Time-Synchronization
+    slurmScript:
+      path: testscripts/datetest.sh
+      nodeLists: hydraCompute
+    conditions:
+      difference: 150000000
+
+  - name: Command
+    command: 'true'
+
+  - name: Min-Tests
+    command: echo 10
+    conditions:
+      min: 15
+
+  - name: Max-Test
+    command: echo 30
+    conditions:
+      max: 15

@@ -1,58 +1,33 @@
-import subprocess
+from time import time
 import fire
-import yaml
-import time
+import logging
 
-from yaml.loader import SafeLoader
+from configManager import Config
+from customLogger import CustomLogger
+from slurmHelper import SlurmHelper
+from testRunner import TestRunner
 
-global tests
-global interval
+def main(config, repeat=False, v=False, vv=False):
+  # Setup Logger
+  logger = CustomLogger('[ClustOK]')
 
-def checkSlurm():
-  try:
-    subprocess.call('sinfo') != 0
-  except:
-    print('Could not execute slurm-command. Please make sure slurm is installed and the user executing this script has enough permissions')
-    exit(1)
+  if (v):
+    logger.setLevel(logging.INFO)
 
-def readConfig(config="clustOK.yml"):
-  with open(config) as f:
-    data = yaml.load(f, Loader=SafeLoader)
+  if (vv):
+    logger.setLevel(logging.DEBUG)
 
-    global tests
-    global interval
+  # Load Config
+  config = Config(logger, config)
 
-    tests = data['tests']
-    interval = data['interval']
-
-def executeTests(tests):
-  print('Executing Tests...')
-  print(tests)
-
-  for test in tests: 
-      if 'script' in test:
-        print('Executing script-test: %s' % test['name'])
-
-        result = executeSingleBash(test['script'])
-
-        if (result.returncode == 0):
-          print('Success!')
-        else:
-          print('Failed with errorCode: ', result.returncode)
-
-
-def executeSingleBash(test):
-  result = subprocess.run([test['path']], stdout=subprocess.PIPE)
-  #  print(result.stdout.decode('utf-8'))
-  return result
-
-def main(config="clustOK.yml"):
-  checkSlurm()
-  readConfig(config)
+  testRunner = TestRunner(logger, config)
 
   while True:
-    executeTests(tests)
-    time.sleep(interval)
+    testRunner.executeTests()
+    if (repeat == False):
+      break
+    logger.debug("Waiting %d seconds", config.interval)
+    time.sleep(config.interval)
 
 if __name__ == '__main__':
     fire.Fire(main)
