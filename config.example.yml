@@ -25,8 +25,17 @@ tests:
     conditions:
       difference: 150000000
 
+  - name: Memory Bandwidth
+    slurmScript:
+      path: testscripts/memory_bandwith.sh
+      nodeLists: hydraCompute
+      options:
+        - -c32
+    conditions:
+      min: 110000
+
   - name: Command
-    command: 'true'
+    command: "true"
 
   - name: Min-Tests
     command: echo 10
