@@ -1,8 +1,6 @@
 
-from ctypes import sizeof
 from functools import reduce
 import logging
-from optparse import Option
 import yaml
 from schema import Schema, SchemaError, Or, Optional
 
@@ -45,12 +43,18 @@ config_schema = Schema({
                 ]
             },
             Optional("conditions"): 
-                {
+                Or({
                     Optional("min"): int,
                     Optional("max"): int,
                     Optional("difference"): int
                     
-                }
+                },
+                [{
+                    Optional("min"): int,
+                    Optional("max"): int,
+                    Optional("difference"): int
+                    
+                }])
         },
         {
             "name": str,
@@ -63,12 +67,18 @@ config_schema = Schema({
                 ]
             },
             Optional("conditions"): 
-                {
+                Or({
                     Optional("min"): int,
                     Optional("max"): int,
                     Optional("difference"): int
                     
-                }
+                },
+                [{
+                    Optional("min"): int,
+                    Optional("max"): int,
+                    Optional("difference"): int
+                    
+                }])
         },
         error="Test must be one of command, script, slurmscript or slurmPairScript"
         )

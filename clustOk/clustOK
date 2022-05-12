@@ -1,10 +1,11 @@
+#!python
+
 from time import time
 import fire
 import logging
 
 from configManager import Config
 from customLogger import CustomLogger
-from slurmHelper import SlurmHelper
 from testRunner import TestRunner
 
 def main(config, repeat=False, v=False, vv=False):

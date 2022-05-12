@@ -1,5 +1,4 @@
 from logging import Logger
-from platform import node
 import subprocess
 
 from psutil import Popen
@@ -76,6 +75,6 @@ class SlurmHelper:
         for p in processes:
             if p[1].poll() is None:
                 p[1].wait(self.config.timeout)
-            results.append((p[0], p[1].poll(), p[1].communicate()[0].decode('utf-8')))
+            results.append((p[0], p[1].poll(), p[1].communicate()[0].decode('utf-8').rstrip()))
 
         return results

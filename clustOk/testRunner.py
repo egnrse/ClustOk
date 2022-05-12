@@ -1,9 +1,7 @@
 import logging
 import subprocess
-from subprocess import PIPE, Popen
 
 from configManager import Config
-
 from slurmHelper import SlurmHelper
 from testEvaluator import TestEvaluator
 
@@ -44,8 +42,8 @@ class TestRunner:
 
     def executeCommand(self, command):
         result = subprocess.run(command.split(' '), stdout=subprocess.PIPE)
-        return [('local', result.returncode, result.stdout.decode('utf-8'))]
+        return [('local', result.returncode, result.stdout.decode('utf-8').rstrip())]
 
     def executeSingleBash(self, test):
         result = subprocess.run([test['path']], stdout=subprocess.PIPE)
-        return [('local', result.returncode, result.stdout.decode('utf-8'))]
+        return [('local', result.returncode, result.stdout.decode('utf-8').rstrip())]
