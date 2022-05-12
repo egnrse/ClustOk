@@ -52,7 +52,25 @@ config_schema = Schema({
                     
                 }
         },
-        error="Test must be one of command, script, or slurmscript"
+        {
+            "name": str,
+            "slurmPairScript": {
+                "path": str,
+                "pairSize": int,
+                "nodeLists": str,
+                Optional("options"): [
+                    str
+                ]
+            },
+            Optional("conditions"): 
+                {
+                    Optional("min"): int,
+                    Optional("max"): int,
+                    Optional("difference"): int
+                    
+                }
+        },
+        error="Test must be one of command, script, slurmscript or slurmPairScript"
         )
     ],
     "settings": {

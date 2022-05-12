@@ -11,3 +11,6 @@ class Command(Test):
 class SlurmScript(Test):
     path: str
     nodeLists: str
+
+class SlurmPairScript(SlurmScript):
+    pairSize: int

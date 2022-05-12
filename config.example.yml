@@ -46,3 +46,15 @@ tests:
     command: echo 30
     conditions:
       max: 15
+
+  - name: Omnipath Network Bandwidth
+  slurmPairScript:
+    path: testscripts/omnibandwith.sh
+    nodeLists: hydraCompute
+    pairSize: 2
+    options:
+      - -mblock:cyclic
+      - -N2
+      - --ntasks-per-node=2
+  conditions:
+    min: 20000
