@@ -1,8 +1,8 @@
 import logging
 import subprocess
 
-from configManager import Config
-from slurmHelper import SlurmHelper
+from utils.configManager import Config
+from runner.slurmRunner import SlurmHelper
 from testEvaluator import TestEvaluator
 
 
@@ -14,31 +14,32 @@ class TestRunner:
         self.evaluator = TestEvaluator(logger, config)
         return
 
-    def executeTests(self):
+    def execute(self):
         self.logger.info('Executing Tests...')
-        result = 0
+        results = []
 
         for test in self.config.tests: 
             if 'command' in test:
                 self.logger.info('[%s]: Executing test-command..' % test['name'])
-                results = self.executeCommand(test['command'])
+                result = self.executeCommand(test['command'])
 
             elif 'script' in test:
                 self.logger.info('[%s]: Executing test-script..' % test['name'])
-                results = self.executeSingleBash(test['script'])
+                result = self.executeSingleBash(test['script'])
             
             elif 'slurmScript' in test:
                 self.logger.info('[%s]: Executing slurm test-script..' % test['name'])
-                results = self.slurmHelper.executeSlurmScript(test['slurmScript'])
+                result = self.slurmHelper.executeSlurmScript(test['slurmScript'])
 
             elif 'slurmPairScript' in test:
                 self.logger.info('[%s]: Executing slurm test-script in pairs..' % test['name'])
-                results = self.slurmHelper.executeSlurmScriptInPairs(test['slurmPairScript'])
-
-            result += self.evaluator.evaluate(test, results)
-
-        if result > 0:
-            self.logger.error('%d/%d tests failed!', result, len(self.config.tests))
+                result = self.slurmHelper.executeSlurmScriptInPairs(test['slurmPairScript'])
+            
+            evaluation = self.evaluator.evaluate(test, result)
+            print(result)
+            results.append({"name": test["name"], "result": result, "test": test, "evaluation": evaluation})
+        
+        return results
 
     def executeCommand(self, command):
         result = subprocess.run(command.split(' '), stdout=subprocess.PIPE)

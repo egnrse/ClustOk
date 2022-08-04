@@ -1,14 +1,29 @@
 #!python
 
-from time import time
+import time
+from typing import List
 import fire
 import logging
 
-from configManager import Config
-from customLogger import CustomLogger
+
+from interfaces.runner import Runner
+from interfaces.exporter import Exporter
+
+from utils.configManager import Config
+from utils.customLogger import CustomLogger
 from testRunner import TestRunner
 
-def main(config, repeat=False, v=False, vv=False):
+from prometheus_client import start_http_server
+from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
+
+from exporter.prometheusExporter import PrometheusExporter
+from exporter.fileExporter import FileExporter
+from testEvaluator import TestEvaluator
+
+def main(config, repeat=False, prometheus=False, v=False, vv=False, outFile=None):
+  exporters: List[Exporter] = []
+  runners: List[Runner] = []
+  
   # Setup Logger
   logger = CustomLogger('[ClustOK]')
 
@@ -21,14 +36,31 @@ def main(config, repeat=False, v=False, vv=False):
   # Load Config
   config = Config(logger, config)
 
-  testRunner = TestRunner(logger, config)
+  evaluator = TestEvaluator(logger, config)
+  runners.append(TestRunner(logger, config))
 
+  if (prometheus):
+    exporters.append(PrometheusExporter.init())
+
+  if (outFile is not None):
+    exporters.append(FileExporter.init(outFile))
+
+  # Main Loop
   while True:
-    testRunner.executeTests()
+    results = []
+    for runner in runners:
+      results.append(runner.execute())
+      
+    # Update exporters
+    for exporter in exporters:
+         exporter.update(results)
+
     if (repeat == False):
       break
+    
     logger.debug("Waiting %d seconds", config.interval)
     time.sleep(config.interval)
+
 
 if __name__ == '__main__':
     fire.Fire(main)

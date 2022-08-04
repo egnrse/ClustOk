@@ -52,7 +52,10 @@ config_schema = Schema({
                 [{
                     Optional("min"): int,
                     Optional("max"): int,
-                    Optional("difference"): int
+                    Optional("difference"): int,
+                    #Optional("lessThen"): int,
+                    #Optional("greaterThen"): int,
+                    #Optional("equalTo"): int
                     
                 }])
         },
@@ -76,7 +79,10 @@ config_schema = Schema({
                 [{
                     Optional("min"): int,
                     Optional("max"): int,
-                    Optional("difference"): int
+                    Optional("difference"): int,
+                    #Optional("lessThen"): int,
+                    #Optional("greaterThen"): int,
+                    #Optional("equalTo"): int
                     
                 }])
         },

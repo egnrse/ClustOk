@@ -58,3 +58,13 @@ tests:
       - --ntasks-per-node=2
   conditions:
     min: 20000
+
+  - name: Multiline test
+    slurmScript:
+      path: testscripts/multilinetest.sh
+      nodeLists: hydraCompute
+    conditions:
+      - min: 10
+        max: 10
+      - min: 1000
+      - maxDifference: 100

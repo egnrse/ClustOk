@@ -1,6 +1,6 @@
 import logging
 
-from configManager import Config
+from utils.configManager import Config
 
 
 class TestEvaluator:
@@ -63,6 +63,9 @@ class TestEvaluator:
                 if 'max' in conditions:
                     result &= self.evaluateMax(outputs, conditions['max'])
                 
+                if 'difference' in conditions:
+                    result &= self.evaluateDifference(outputs, conditions['difference'])
+
                 if 'difference' in conditions:
                     result &= self.evaluateDifference(outputs, conditions['difference'])
 

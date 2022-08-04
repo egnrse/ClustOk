@@ -2,30 +2,25 @@ from logging import Logger
 import subprocess
 
 from psutil import Popen
-from configManager import Config
-
-from test import SlurmPairScript, SlurmScript
 
 class SlurmHelper:
-    def __init__(self, logger: Logger, config: Config):
+    def __init__(self, logger: Logger, config):
         self.logger = logger
         self.config = config
         return
 
-    def fetchNodeInfo(self, nodeNames):
+    def getIdleNodes(self, nodeNames):
         result = subprocess.run( [self.config.slurmdir + '/sinfo', '-hN' ,'-p', 'q_staff,q_staff_tesla', '-O', 'NodeList,StateCompact', '-n', nodeNames], stdout=subprocess.PIPE)
         nodeInfo = result.stdout.decode('utf-8').splitlines()
         nodes = *map(lambda node: tuple(node.split()), nodeInfo),
+        nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*']), nodes),
 
-        self.logger.info("%d/%d Nodes of %s are idle and availiable for the test", len(nodes), len(nodeInfo), nodeNames)
+        nodes = *list(map(lambda node: node[0], nodes)),
 
+        self.logger.info("%d/%d Nodes of %s are not down or drained and availiable for the test", len(nodes), len(nodeInfo), nodeNames)
         return nodes
 
-    def getIdleNodes(self, nodeNames):
-        nodeInfo = self.fetchNodeInfo(nodeNames)
-        return list(map(lambda node: node[0], list(filter(lambda node: node[1] == 'idle', nodeInfo))))
-
-    def executeSlurmScriptInPairs(self, test: SlurmPairScript):
+    def executeSlurmScriptInPairs(self, test):
         nodes = self.config.parseNodeNames(test['nodeLists'])
         nodes = self.getIdleNodes(nodes)
 
@@ -50,7 +45,7 @@ class SlurmHelper:
 
         return self.collectResults(processes)
 
-    def executeSlurmScript(self, test: SlurmScript):
+    def executeSlurmScript(self, test):
         nodes = self.config.parseNodeNames(test['nodeLists'])
         nodes = self.getIdleNodes(nodes)
 
@@ -63,10 +58,13 @@ class SlurmHelper:
 
         return self.collectResults(processes)
 
-    def srun(self, test: SlurmScript, node: str):
+    def srun(self, test, node: str):
         if ('options' in test):
+            self.logger.debug(self.config.slurmdir + 'srun', *test['options'], '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path'])
+
             return (node, Popen([self.config.slurmdir + 'srun', *test['options'], '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path']], stdout=subprocess.PIPE))
         else:
+            self.logger.debug(self.config.slurmdir + 'srun', '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path'])
             return (node, Popen([self.config.slurmdir + 'srun', '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path']], stdout=subprocess.PIPE))
 
     def collectResults(self, processes):
