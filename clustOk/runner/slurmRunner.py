@@ -10,10 +10,10 @@ class SlurmHelper:
         return
 
     def getIdleNodes(self, nodeNames):
-        result = subprocess.run( [self.config.slurmdir + '/sinfo', '-hN' ,'-p', 'q_staff,q_staff_tesla', '-O', 'NodeList,StateCompact', '-n', nodeNames], stdout=subprocess.PIPE)
+        result = subprocess.run( [self.config.slurmdir + '/sinfo', '-hN' ,'-p', 'q_staff', '-O', 'NodeList,StateCompact', '-n', nodeNames], stdout=subprocess.PIPE)
         nodeInfo = result.stdout.decode('utf-8').splitlines()
         nodes = *map(lambda node: tuple(node.split()), nodeInfo),
-        nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*']), nodes),
+        nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']), nodes),
 
         nodes = *list(map(lambda node: node[0], nodes)),
 
@@ -60,12 +60,12 @@ class SlurmHelper:
 
     def srun(self, test, node: str):
         if ('options' in test):
-            self.logger.debug(self.config.slurmdir + 'srun', *test['options'], '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path'])
+            #self.logger.debug(self.config.slurmdir + 'srun ' + ' '.join(test['options'])  + ' -p ', + 'q_staff ' + ' -w' + node + ' ' + test['path'])
 
-            return (node, Popen([self.config.slurmdir + 'srun', *test['options'], '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path']], stdout=subprocess.PIPE))
+            return (node, Popen([self.config.slurmdir + 'srun', *test['options'], '-p', 'q_staff',  '-w', node, test['path']], stdout=subprocess.PIPE))
         else:
-            self.logger.debug(self.config.slurmdir + 'srun', '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path'])
-            return (node, Popen([self.config.slurmdir + 'srun', '-p', 'q_staff,q_staff_tesla',  '-w', node, test['path']], stdout=subprocess.PIPE))
+            #self.logger.debug(self.config.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test['path'])
+            return (node, Popen([self.config.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test['path']], stdout=subprocess.PIPE))
 
     def collectResults(self, processes):
         results = []

@@ -16,9 +16,10 @@ class TestRunner:
 
     def execute(self):
         self.logger.info('Executing Tests...')
-        results = []
+        results = {}
 
-        for test in self.config.tests: 
+        for test in self.config.tests:
+            summary = {}
             if 'command' in test:
                 self.logger.info('[%s]: Executing test-command..' % test['name'])
                 result = self.executeCommand(test['command'])
@@ -35,10 +36,9 @@ class TestRunner:
                 self.logger.info('[%s]: Executing slurm test-script in pairs..' % test['name'])
                 result = self.slurmHelper.executeSlurmScriptInPairs(test['slurmPairScript'])
             
-            evaluation = self.evaluator.evaluate(test, result)
-            print(result)
-            results.append({"name": test["name"], "result": result, "test": test, "evaluation": evaluation})
-        
+            evaluation = self.evaluator.evaluate(test, result, summary)
+            results[test["name"]] = ({"name": test["name"], "result": result, "test": test, "evaluation": evaluation, "summary": summary})
+
         return results
 
     def executeCommand(self, command):

@@ -5,7 +5,6 @@ from typing import List
 import fire
 import logging
 
-
 from interfaces.runner import Runner
 from interfaces.exporter import Exporter
 
@@ -40,16 +39,16 @@ def main(config, repeat=False, prometheus=False, v=False, vv=False, outFile=None
   runners.append(TestRunner(logger, config))
 
   if (prometheus):
-    exporters.append(PrometheusExporter.init())
+    exporters.append(PrometheusExporter.init(logger, config))
 
   if (outFile is not None):
     exporters.append(FileExporter.init(outFile))
 
   # Main Loop
   while True:
-    results = []
+    results = {}
     for runner in runners:
-      results.append(runner.execute())
+      results.update(runner.execute())
       
     # Update exporters
     for exporter in exporters:
@@ -58,7 +57,7 @@ def main(config, repeat=False, prometheus=False, v=False, vv=False, outFile=None
     if (repeat == False):
       break
     
-    logger.debug("Waiting %d seconds", config.interval)
+    logger.info("Waiting %d seconds", config.interval)
     time.sleep(config.interval)
 
 

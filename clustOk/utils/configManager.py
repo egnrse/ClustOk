@@ -10,9 +10,11 @@ config_schema = Schema({
             "nodeNames": str
         }
     },
+
     "tests": [
         Or({
             "name": str,
+            Optional("descr"): str,
             "script": {
                 "path": str
             },
@@ -25,6 +27,7 @@ config_schema = Schema({
         },
         {
             "name": str,
+            Optional("descr"): str,
             "command": str,
             Optional("conditions"): 
                 {
@@ -35,6 +38,7 @@ config_schema = Schema({
         },
         {
             "name": str,
+            Optional("descr"): str,
             "slurmScript": {
                 "path": str,
                 "nodeLists": str,
@@ -61,6 +65,7 @@ config_schema = Schema({
         },
         {
             "name": str,
+            Optional("descr"): str,
             "slurmPairScript": {
                 "path": str,
                 "pairSize": int,
@@ -92,7 +97,10 @@ config_schema = Schema({
     "settings": {
         "interval": int,
         "timeout": int,
-        "slurmdir": str
+        "slurmdir": str,
+            "prometheus": {
+                "port": int
+        },
     }
 })
 
@@ -109,6 +117,8 @@ class Config:
             self.nodeLists = config['nodeLists']
             self.timeout = config['settings']['timeout']
             self.slurmdir = config['settings']['slurmdir']
+
+            self.prometheus = config['settings']['prometheus']
 
             self.logger.info("Found %d tests", len(self.tests))
         
