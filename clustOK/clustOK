@@ -1,0 +1,81 @@
+#!python
+
+import time
+from typing import List
+import fire
+import logging
+
+
+# Runner
+from interfaces.runner import Runner
+from runner.localRunner import LocalTestRunner
+from runner.slurmRunner import SlurmTestRunner
+
+from interfaces.exporter import Exporter
+
+from utils.config.configManager import ConfigManager
+from utils.logger.customLogger import CustomLogger
+
+from prometheus_client import start_http_server
+from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
+
+from exporter.prometheusExporter import PrometheusExporter
+from exporter.fileExporter import FileExporter
+
+def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
+  exporters: List[Exporter] = []
+  runners: List[Runner] = []
+  
+  # Setup Logger
+  logger = CustomLogger('[ClustOK]')
+
+  if (v):
+    logger.setLevel(logging.INFO)
+
+  elif (vv):
+    logger.setLevel(logging.DEBUG)
+
+  # Load Config
+  configManager = ConfigManager(logger, config)
+  config = configManager.config
+  settings = config.settings
+
+  if (not v and not vv):
+    logger.setLevel(settings.logging.level)
+
+  #evaluator = TestEvaluator(logger, config)
+  runners.append(LocalTestRunner(logger, config))
+  runners.append(SlurmTestRunner(logger, config))
+
+  if (config.settings.prometheus.enable):
+    exporters.append(PrometheusExporter.init(logger, config))
+
+  if (config.settings.output is not None):
+    exporters.append(FileExporter.init(settings.output))
+
+  # Main Loop
+  while True:
+    results: dict = {}
+
+    for runner in runners:
+      result = runner.execute()
+
+      for singleResult in result:
+        if singleResult["name"] not in results:
+          results[singleResult["name"]] = []
+
+        results[singleResult["name"]].append(singleResult)
+      
+    # Update exporters
+    for exporter in exporters:
+         exporter.update(results)
+  
+    if (repeat == False):
+      break
+  
+    logger.info("Waiting %d seconds", config.interval)
+    time.sleep(settings.interval)
+
+
+if __name__ == '__main__':
+    fire.Fire(main)

@@ -1,10 +1,8 @@
 import logging
 
-from utils.configManager import Config
-
 
 class TestEvaluator:
-    def __init__(self, logger: logging.Logger, config: Config):
+    def __init__(self, logger: logging.Logger, config):
         self.logger = logger
         self.config = config
         return
@@ -72,9 +70,9 @@ class TestEvaluator:
         min_val = min(results)
         extraResults["min"] = min_val
 
-        self.logger.debug("Minimum result is %d out of required %d", min_val, minThreshold)
+        self.logger.debug("Minimum result is %f out of required %f", min_val, minThreshold)
         if (min_val < minThreshold):
-            self.logger.warn('Min value threshold violated. %d instead of %d', min_val, minThreshold)
+            self.logger.warn('Min value threshold violated. %f instead of %f', min_val, minThreshold)
             return False
 
         return True
@@ -83,9 +81,9 @@ class TestEvaluator:
         max_val = max(results)
         extraResults["max"] = max_val
 
-        self.logger.debug("Maximum result is %d of %d allowed", max_val, maxThreshold)
+        self.logger.debug("Maximum result is %f of %f allowed", max_val, maxThreshold)
         if (max_val > maxThreshold):
-            self.logger.warn('Max value threshold violated. %d instead of %d', max_val, maxThreshold)
+            self.logger.warn('Max value threshold violated. %f instead of %f', max_val, maxThreshold)
             return False
         
         return True
@@ -96,9 +94,9 @@ class TestEvaluator:
         difference = max_val - min_val
         extraResults["difference"] = difference
 
-        self.logger.debug("Max difference is %d of %d allowed", difference, maxDifference)
+        self.logger.debug("Max difference is %f of %f allowed", difference, maxDifference)
         if difference > maxDifference:
-            self.logger.warn('Difference threshold violated. Highest difference is %d istead of allowed %d', difference, maxDifference)
+            self.logger.warn('Difference threshold violated. Highest difference is %f istead of allowed %f', difference, maxDifference)
             return False
 
         return True

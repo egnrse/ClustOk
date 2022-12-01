@@ -1,0 +1,129 @@
+from logging import Logger
+import subprocess
+
+from psutil import Popen
+
+from interfaces.runner import Runner
+from utils.config.config import Config
+
+from interfaces.test import SlurmScriptPairTest, SlurmScriptTest, SlurmPairScript, SlurmScript
+
+from interfaces.testresult import SingleResult
+
+from functools import reduce
+
+from typing import List
+
+class SlurmTestRunner(Runner):
+    def __init__(self, logger: Logger, config: Config):
+        self.logger = logger
+        self.config = config
+        self.slurmHelper = SlurmHelper(logger, config)
+        return
+
+    def execute(self) -> List[SingleResult]:
+        self.logger.info('Executing Basic Tests...')
+        results = []
+
+        for test in self.config.tests:
+            summary = {}          
+            
+            if hasattr(test, 'slurmScript'):
+                slurmScriptTest: SlurmScriptTest = test
+                self.logger.info('[%s]: Executing slurmScript-test..' % slurmScriptTest.name)
+                result = self.slurmHelper.executeSlurmScript(slurmScriptTest.slurmScript, test.name)
+                results.extend(result)
+
+            elif hasattr(test, 'slurmPairScript'):
+                slurmPairScript: SlurmScriptPairTest = test
+                self.logger.info('[%s]: Executing slurm test-script in pairs..' % slurmPairScript.name)
+                result = self.slurmHelper.executeSlurmScriptInPairs(slurmPairScript.slurmPairScript, test.name)
+                results.extend(result)
+
+        return results
+
+
+class SlurmHelper:
+    def __init__(self, logger: Logger, config: Config):
+        self.logger = logger
+        self.config = config
+        return
+
+    def getIdleNodes(self, nodeNames):
+        result = subprocess.run( [self.config.settings.slurmdir + '/sinfo', '-hN' ,'-p', 'q_staff', '-O', 'NodeList,StateCompact', '-n', nodeNames], stdout=subprocess.PIPE)
+        nodeInfo = result.stdout.decode('utf-8').splitlines()
+        nodes = *map(lambda node: tuple(node.split()), nodeInfo),
+        nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']), nodes),
+
+        nodes = *list(map(lambda node: node[0], nodes)),
+
+        self.logger.info("%d/%d Nodes of %s are not down or drained and availiable for the test", len(nodes), len(nodeInfo), nodeNames)
+        return nodes
+
+    def srun(self, test, node: str):
+        if hasattr(test, 'options'):
+            #self.logger.debug(self.config.slurmdir + 'srun ' + ' '.join(test['options'])  + ' -p ', + 'q_staff ' + ' -w' + node + ' ' + test['path'])
+
+            return (node, Popen([self.config.settings.slurmdir + 'srun', *test.options, '-p', 'q_staff',  '-w', node, test.path], stdout=subprocess.PIPE))
+        else:
+            #self.logger.debug(self.config.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test['path'])
+            return (node, Popen([self.config.settings.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test.path], stdout=subprocess.PIPE))
+
+    def collectResults(self, processes, testName):
+        results = []
+
+        for p in processes:
+            if p[1].poll() is None:
+                p[1].wait(self.config.settings.timeout)
+            singleResult = { "name": testName, "returncode": 0, "output": p[1].communicate()[0].decode('utf-8').rstrip(), "nodes": p[0]}
+            results.append(singleResult)
+
+        return results
+
+    def executeSlurmScriptInPairs(self, test: SlurmPairScript, name: str) -> List[SingleResult]:
+        nodes = self.parseNodeNames(test.nodeLists)
+        nodes = self.getIdleNodes(nodes)
+
+        processes = set()
+
+        for i in range(0, len(nodes) // test.pairSize):
+            nodePair = ''
+
+            for j in range(0, test.pairSize):
+                nodePair += nodes[(len(nodes) // test.pairSize) * j + i] + ',' 
+
+            self.logger.debug("Executing test on node-pair %s", nodePair)
+            processes.add(self.srun(test, nodePair))
+
+        if len(nodes) % test.pairSize != 0:
+            nodePair = ''
+            for j in range(1, test.pairSize +1):
+                nodePair += nodes[-j] + ',' 
+
+            self.logger.debug("Executing test on node-pair %s (extra) ", nodePair)
+            processes.add(self.srun(test, nodePair))
+
+        return self.collectResults(processes, name)
+
+    def executeSlurmScript(self, test: SlurmScript, name: str) -> List[SingleResult]:
+        nodes = self.parseNodeNames(test.nodeLists)
+        nodes = self.getIdleNodes(nodes)
+
+        processes = set()
+
+        # Execute command on every specified node
+        for node in nodes:
+            self.logger.debug("Executing test on node %s" % node)
+            processes.add(self.srun(test, node))
+
+        return self.collectResults(processes, name)
+
+    def parseNodeNames(self, nodeLists):
+        lists = nodeLists.split(',')
+
+        if len(lists) <= 1:
+            return getattr(self.config.nodeLists, lists[0]).nodeNames
+        
+        return reduce(lambda a, b: getattr(self.config.nodeLists, lists[a]).nodeNames + ',' + getattr(self.config.nodeLists, lists[b]).nodeNames, lists)
+
+

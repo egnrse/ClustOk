@@ -1,7 +1,13 @@
 settings:
-  interval: 5
-  timeout: 10
-  slurmdir: /opt/slurm/bin/
+  interval: 3600
+  timeout: 1000
+  slurmdir: /usr/local/slurm/bin/
+  logging:
+    level: debug
+    dir:
+  prometheus:
+    port: 8000
+    enable: true
 
 nodeLists:
   hydraCompute:
