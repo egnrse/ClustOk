@@ -2,48 +2,58 @@ from io import TextIOWrapper
 from interfaces.exporter import Exporter
 
 from utils.config.config import OutputSettings
+from datetime import datetime
+
 import json
 
 
 class FileExporter(Exporter):
     def __init__(self):
-        self.file: TextIOWrapper
         self.format: str
+        self.fileName: str
+        self.dir: str
 
     def update(self, testResults):
         if self.format == 'pretty':
-            self.prettyPrint(testResults)
+            self.prettyPrint(testResults, self.fileName)
 
         elif self.format == 'json':
-            self.jsonPrint(testResults)
+            self.jsonPrint(testResults, self.fileName)
             
 
     def destroy(self):
-        self.file.close()     
+        pass     
 
-    def jsonPrint(self, testResults):
+    def jsonPrint(self, testResults, fileName):
         jsoninfo = {}
         jsoninfo["testresults"] = testResults
-        self.file.write(json.dumps(jsoninfo, indent=4))
+        jsoninfo["timestamp"] = datetime.now().isoformat()
+        
+        with open(fileName + ".json", "w") as outputFile:
+            outputFile.write(json.dumps(jsoninfo, indent=4))
 
-    def prettyPrint(self, testResults):
-        # Iterate every testName
-        for testName, results in testResults.items():
-            self.file.write("=============================================\n")
-            self.file.write(testName + ":\n")
-            self.file.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
+    def prettyPrint(self, testResults, fileName):
+        with open(fileName + ".txt", "w") as outputFile:
+            outputFile.write("ClustOK Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
 
-            # Iterate every result
-            for result in results:
-                self.file.write(result["nodes"] + "\t\t\t\t\t\t\t")
-                self.file.write(str(result["returncode"]) + "\t\t\t")
-                self.file.write(result["output"])
-                self.file.write('\n')
-            self.file.write("\n")
+
+            # Iterate every testName
+            for testName, results in testResults.items():
+                outputFile.write("\n=============================================\n")
+                outputFile.write(testName + ":\n\n")
+                outputFile.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
+
+                # Iterate every result
+                for result in results:
+                    outputFile.write(result["nodes"] + "\t\t\t\t\t\t\t")
+                    outputFile.write(str(result["returncode"]) + "\t\t\t\t")
+                    outputFile.write(result["output"])
+                    outputFile.write('\n')
 
     @staticmethod
     def init(outputSettings: OutputSettings):
         exporter = FileExporter()
-        exporter.file = open(outputSettings.fileName, "w")
+        exporter.dir = outputSettings.dir
+        exporter.fileName = outputSettings.fileName
         exporter.format = outputSettings.format
         return exporter   

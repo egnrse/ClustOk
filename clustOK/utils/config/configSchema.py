@@ -94,11 +94,12 @@ config_schema = Schema({
         "interval": int,
         "timeout": int,
         "slurmdir": str,
-        Optional("output"): {
+        Optional("output"): Or({
             "dir": str,
             "fileName": str,
             "format": Or("pretty", "json")
-        },
+        }, "console"
+        ),
         "prometheus": {
             "port": int,
             "enable": bool

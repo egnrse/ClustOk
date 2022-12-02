@@ -22,6 +22,7 @@ from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFam
 
 from exporter.prometheusExporter import PrometheusExporter
 from exporter.fileExporter import FileExporter
+from exporter.consoleExporter import ConsoleExporter
 
 def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   exporters: List[Exporter] = []
@@ -52,7 +53,10 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   if (config.settings.prometheus.enable):
     exporters.append(PrometheusExporter.init(logger, config))
 
-  if (config.settings.output is not None):
+  if (config.settings.output == "console"):
+    exporters.append(ConsoleExporter.init(settings.output))
+
+  elif (config.settings.output is not None):
     exporters.append(FileExporter.init(settings.output))
 
   # Main Loop
@@ -70,6 +74,10 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
 
         results[singleResult["name"]].append(singleResult)
       
+    for _,resultList in results.items():
+      resultList.sort(key=lambda result: result["nodes"])
+
+
     # Evaluate results
     for evaluator in evaluators:
       evaluator.evaluate(results)
@@ -84,6 +92,8 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
     logger.info("Waiting %d seconds", config.settings.interval)
     time.sleep(config.settings.interval)
 
+  for exporter in exporters:
+    exporter.destroy()
 
 if __name__ == '__main__':
     fire.Fire(main)

@@ -12,3 +12,7 @@ class Exporter():
     def update(self, testResult: List[TestResult]):
         """Inserts the latest testresults for exportation"""
         pass
+
+    def destroy(self):
+        """Closes open handles"""
+        pass
