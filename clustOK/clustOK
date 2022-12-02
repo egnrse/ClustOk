@@ -12,6 +12,7 @@ from runner.localRunner import LocalTestRunner
 from runner.slurmRunner import SlurmTestRunner
 
 from interfaces.exporter import Exporter
+from interfaces.evaluator import Evaluator
 
 from utils.config.configManager import ConfigManager
 from utils.logger.customLogger import CustomLogger
@@ -25,6 +26,7 @@ from exporter.fileExporter import FileExporter
 def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   exporters: List[Exporter] = []
   runners: List[Runner] = []
+  evaluators: List[Evaluator] = []
   
   # Setup Logger
   logger = CustomLogger('[ClustOK]')
@@ -57,24 +59,30 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   while True:
     results: dict = {}
 
+    # Execute tests
     for runner in runners:
       result = runner.execute()
 
+      # Collect results
       for singleResult in result:
         if singleResult["name"] not in results:
           results[singleResult["name"]] = []
 
         results[singleResult["name"]].append(singleResult)
       
+    # Evaluate results
+    for evaluator in evaluators:
+      evaluator.evaluate(results)
+
     # Update exporters
     for exporter in exporters:
-         exporter.update(results)
+      exporter.update(results)
   
     if (repeat == False):
       break
   
-    logger.info("Waiting %d seconds", config.interval)
-    time.sleep(settings.interval)
+    logger.info("Waiting %d seconds", config.settings.interval)
+    time.sleep(config.settings.interval)
 
 
 if __name__ == '__main__':

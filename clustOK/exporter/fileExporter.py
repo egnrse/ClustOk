@@ -2,6 +2,8 @@ from io import TextIOWrapper
 from interfaces.exporter import Exporter
 
 from utils.config.config import OutputSettings
+import json
+
 
 class FileExporter(Exporter):
     def __init__(self):
@@ -20,7 +22,9 @@ class FileExporter(Exporter):
         self.file.close()     
 
     def jsonPrint(self, testResults):
-        print('test')
+        jsoninfo = {}
+        jsoninfo["testresults"] = testResults
+        self.file.write(json.dumps(jsoninfo, indent=4))
 
     def prettyPrint(self, testResults):
         # Iterate every testName
