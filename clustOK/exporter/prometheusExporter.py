@@ -26,11 +26,6 @@ class PrometheusExporter(Exporter):
                     name = test.name + '_' + condition
                     self.collectors[name] = Gauge(name, 'Required: ' + str(value))
 
-    def collect(self):
-      # nothing
-      print('what')
-
-
     def update(self, testResults):
         self.testResults = testResults
 

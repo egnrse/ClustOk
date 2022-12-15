@@ -12,13 +12,16 @@ class FileExporter(Exporter):
         self.format: str
         self.fileName: str
         self.dir: str
+        self.rotate: str
 
     def update(self, testResults):
+        fileName = datetime.now().strftime(self.fileName)
+
         if self.format == 'pretty':
-            self.prettyPrint(testResults, self.fileName)
+            self.prettyPrint(testResults, self.dir + '/' + fileName)
 
         elif self.format == 'json':
-            self.jsonPrint(testResults, self.fileName)
+            self.jsonPrint(testResults, self.dir + '/' +  fileName)
             
 
     def destroy(self):

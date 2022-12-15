@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/python
 
 import time
 from typing import List
