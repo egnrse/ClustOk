@@ -1,2 +1,2 @@
 #!/bin/bash
-/home/hinkel/clustok/testfiles/stream.100M | grep Triad | awk '{print $2}'
+/usr/local/sbin/clustOk/testfiles/stream.100M | grep Triad | awk '{print $2}'
