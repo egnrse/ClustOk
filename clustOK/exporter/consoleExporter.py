@@ -16,13 +16,19 @@ class ConsoleExporter(Exporter):
         print("ClustOK Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n")
 
         # Iterate every testName
-        for testName, results in testResults.items():
+        for results in testResults:
             print("\n=============================================")
-            print(testName + ":\n")
+            print(results['testName'] + ":\n")
+
+            print('Summary:\n')
+            for condition, evaluation in results['evaluations'].items():
+                    print(condition + ":" + "\t" + str(evaluation[0]), end="")
+                    print("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
+
             print("NODE(s),CODE,OUTPUT")
 
             # Iterate every result
-            for result in results:
+            for result in results['detailedResults']:
                 print(result["nodes"], end=",")
                 print(str(result["returncode"]), end=",")
                 print(result["output"])     

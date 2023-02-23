@@ -40,3 +40,14 @@ class DictToConf(Config):
                setattr(self, key, [DictToConf(x) if isinstance(x, dict) else x for x in val])
             else:
                setattr(self, key, DictToConf(val) if isinstance(val, dict) else val)
+
+    def __str__(self) -> str:
+        res = "{"
+        for property, value in vars(self).items():
+            item = property + ":" + str(value)
+            res += item + ","
+
+        res += "}"
+
+        return res
+

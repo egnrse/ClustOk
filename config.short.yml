@@ -1,0 +1,45 @@
+settings:
+  interval: 60
+  timeout: 1000
+  slurmdir: /usr/local/slurm/bin/
+  output:
+    dir: output
+    fileName: "test-%Y-%m-%d-%H:%M"
+    format: json
+  logging:
+    level: INFO
+  prometheus:
+    port: 8000
+    enable: true
+
+nodeLists:
+  hydraCompute:
+    nodeNames: hydra[01-36]
+  tesla:
+    nodeNames: tesla
+
+tests:
+  - name: time_synchronization
+    descr: Maximum timedifference between two nodes in milliseconds. Gathered with a customized 'date' command so not totally accurate
+    script:
+      path: /home/hinkel/clustok/testscripts/datetest.sh
+    conditions:
+      max: 0.0001 
+ 
+  - name: network_latency_paired
+    descr: Network latency between two pairs of nodes
+    slurmPairScript:
+      path: /home/hinkel/clustok/testscripts/latency.sh
+      nodeLists: hydraCompute
+      pairSize: 2
+      options:
+        - -N2
+        - --ntasks-per-node=1
+    conditions:
+      max: 300
+
+
+
+
+
+

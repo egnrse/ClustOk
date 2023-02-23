@@ -11,8 +11,16 @@ from interfaces.runner import Runner
 from runner.localRunner import LocalTestRunner
 from runner.slurmRunner import SlurmTestRunner
 
+# Exporter
 from interfaces.exporter import Exporter
+
+from exporter.prometheusExporter import PrometheusExporter
+from exporter.fileExporter import FileExporter
+from exporter.consoleExporter import ConsoleExporter
+
+# Evaluator
 from interfaces.evaluator import Evaluator
+from evaluator.baseEvaluator import BaseEvaluator
 
 from utils.config.configManager import ConfigManager
 from utils.logger.customLogger import CustomLogger
@@ -20,9 +28,7 @@ from utils.logger.customLogger import CustomLogger
 from prometheus_client import start_http_server
 from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
 
-from exporter.prometheusExporter import PrometheusExporter
-from exporter.fileExporter import FileExporter
-from exporter.consoleExporter import ConsoleExporter
+
 
 def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   exporters: List[Exporter] = []
@@ -46,7 +52,7 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   if (not v and not vv):
     logger.setLevel(settings.logging.level)
 
-  #evaluator = TestEvaluator(logger, config)
+  evaluators.append(BaseEvaluator(logger, config))
   runners.append(LocalTestRunner(logger, config))
   runners.append(SlurmTestRunner(logger, config))
 
@@ -77,14 +83,13 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
     for _,resultList in results.items():
       resultList.sort(key=lambda result: result["nodes"])
 
-
     # Evaluate results
     for evaluator in evaluators:
-      evaluator.evaluate(results)
+      resultsWithEvaluation = evaluator.evaluate(results) # Right now basically only one evaluator is working. If more are to come I need to merge results
 
     # Update exporters
     for exporter in exporters:
-      exporter.update(results)
+      exporter.update(resultsWithEvaluation)
   
     if (repeat == False):
       break

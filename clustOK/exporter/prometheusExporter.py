@@ -24,22 +24,43 @@ class PrometheusExporter(Exporter):
             if hasattr(test, 'conditions'):
                 for condition, value in test.conditions.__dict__.items():
                     name = test.name + '_' + condition
-                    self.collectors[name] = Gauge(name, 'Required: ' + str(value))
+                    self.collectors[name] = Gauge(name, 'Result of the test')
+                    self.collectors[name + "_success"] = Enum(name + "_success", test.descr + " Checking for: " + condition, states=['good', 'faulty'])
+                    self.collectors[name + "_required"] = Gauge(name + "_required", 'Required value for: ' + name)
+                    self.collectors[name + "_required"].set(value)
+
 
     def update(self, testResults):
         self.testResults = testResults
 
-        for test in self.config.tests:
-            result = testResults[test["name"]]
-            if (result["evaluation"] <= 0):
-                self.collectors[test["name"]].state('good')
-            else:
-                self.collectors[test["name"]].state('faulty')
+        for results in testResults:
+           
+            for condition, evaluation in results['evaluations'].items():
+                collectorName = results["testName"] + "_" + condition
+                totalResult = True
 
-            if "conditions" in test:
-                for condition in test["conditions"]:
-                    name = test["name"] + '_' + condition
-                    self.collectors[name].set(result["summary"][condition])       
+                self.collectors[collectorName].set(evaluation[1])
+
+                if evaluation[0] == True:
+                    self.collectors[collectorName + "_success" ].state('good')
+                else:
+                    totalResult = False
+                    self.collectors[collectorName + "_success" ].state('faulty')
+
+            if (totalResult):
+                self.collectors[results["testName"]].state('good')
+            else:
+                self.collectors[results["testName"]].state('faulty')
+
+        
+            for result in results['detailedResults']:
+                collectorName = results["testName"] + result["nodes"].replace(',', "")
+                
+                if collectorName not in self.collectors:
+                    self.collectors[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"] )
+
+                self.collectors[collectorName].set(result["output"])
+   
 
     @staticmethod
     def init(logger: Logger, config: Config):

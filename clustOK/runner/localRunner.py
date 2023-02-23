@@ -29,10 +29,10 @@ class LocalTestRunner(Runner):
 
                 results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
 
-            elif hasattr(test, 'path'):
+            elif hasattr(test, 'script'):
                 scriptTest: ScriptTest = test
                 self.logger.info('[%s]: Executing test-script..' % scriptTest.name)
-                result = self.executeSingleBash(scriptTest.path)
+                result = self.executeSingleBash(scriptTest.script.path)
 
                 results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
 

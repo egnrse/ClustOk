@@ -41,13 +41,20 @@ class FileExporter(Exporter):
 
 
             # Iterate every testName
-            for testName, results in testResults.items():
+            for results in testResults:
                 outputFile.write("\n=============================================\n")
-                outputFile.write(testName + ":\n\n")
+                outputFile.write(results['testName'] + ":\n\n")
+                outputFile.write("Summary:\n")
+                
+                for condition, evaluation in results['evaluations'].items():
+                    outputFile.write(condition + ":" + "\t" + str(evaluation[0]))
+                    outputFile.write("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
+
+                outputFile.write("Detail:\n")
                 outputFile.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
 
                 # Iterate every result
-                for result in results:
+                for result in results['detailedResults']:
                     outputFile.write(result["nodes"] + "\t\t\t\t\t\t\t")
                     outputFile.write(str(result["returncode"]) + "\t\t\t\t")
                     outputFile.write(result["output"])
