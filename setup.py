@@ -5,13 +5,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='clustOk',
+    scripts=['clustOk'],
     version='0.1.0',    
     description='A python tool to run and evaluate different kind of tests on clusters',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://hellogity.par.tuwien.ac.at/hinkel/clustok',
     author='Markus Hinkel',
-    author_email='markus@markushinkel.com',
+    author_email='markus.hinkel@tuwien.ac.at',
     packages=['clustOk'],
     install_requires=['fire', 'pyyaml', 'psutil', 'schema'],
     classifiers=[
