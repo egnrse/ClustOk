@@ -30,7 +30,8 @@ from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFam
 
 
 
-def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
+# Called by fire after handling arguments
+def realmain(config="/etc/clustOk/config.yml", repeat=False, v=False, vv=False):
   exporters: List[Exporter] = []
   runners: List[Runner] = []
   evaluators: List[Evaluator] = []
@@ -100,5 +101,6 @@ def main(config="/etc/clustOK/config.yml", repeat=False, v=False, vv=False):
   for exporter in exporters:
     exporter.destroy()
 
-if __name__ == '__main__':
-    fire.Fire(main)
+# Handle arguments
+def main():
+    fire.Fire(realmain)
