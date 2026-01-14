@@ -31,13 +31,13 @@ from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFam
 
 
 # Called by fire after handling arguments
-def realmain(config="/etc/clustOk/config.yml", repeat=False, v=False, vv=False):
+def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
   exporters: List[Exporter] = []
   runners: List[Runner] = []
   evaluators: List[Evaluator] = []
   
   # Setup Logger
-  logger = CustomLogger('[ClustOK]')
+  logger = CustomLogger('[ClustOk]')
 
   if (v):
     logger.setLevel(logging.INFO)

@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clustOk"
+name = "clustok"
 version = "0.2.0"
 description = "A python tool to run and evaluate different types of tests on clusters"
 readme = "README.md"
@@ -37,4 +37,4 @@ Homepage = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 Repository = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 
 [project.scripts]
-clustOk = "clustOk:main"
+clustok = "clustok:main"

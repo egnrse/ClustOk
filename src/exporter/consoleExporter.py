@@ -13,7 +13,7 @@ class ConsoleExporter(Exporter):
 
     def update(self, testResults):
 
-        print("ClustOK Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n")
+        print("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n")
 
         # Iterate every testName
         for results in testResults:

@@ -37,7 +37,7 @@ class FileExporter(Exporter):
 
     def prettyPrint(self, testResults, fileName):
         with open(fileName + ".txt", "w") as outputFile:
-            outputFile.write("ClustOK Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
+            outputFile.write("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
 
 
             # Iterate every testName
