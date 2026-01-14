@@ -5,10 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "clustOk"
 version = "0.2.0"
-description = "A python tool to run and evaluate different kind of tests on clusters"
+description = "A python tool to run and evaluate different types of tests on clusters"
 readme = "README.md"
 authors = [
     {name = "Markus Hinkel"},
+    {name = "Elia Nitsche"},
+    {email = "elia.nitsche@tuwien.ac.at"}
 ]
 maintainers = [
     {name = "Elia Nitsche", email = "elia.nitsche@tuwien.ac.at"},
@@ -31,6 +33,7 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
 [project.urls]
+Homepage = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 Repository = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 
 [project.scripts]
