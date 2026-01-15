@@ -1,0 +1,38 @@
+# example clustok config
+# located usually in: '/etc/clustok/config.yml'
+
+# general settings
+settings:
+  # wait times between tests (only used with option -r/--repeat)
+  interval: 3600
+  timeout: 1000
+  # directories of the slurm binaries
+  slurmdir: /usr/local/slurm/bin/
+  output:
+    # directory/fileName of the log file
+    dir: /var/log/clustok
+    fileName: "test-%Y-%m-%d-%H"
+    format: pretty  # pretty/json
+  logging:
+    # verbosity level
+    level: DEBUG    # DEBUG/INFO/WARN/ERROR/CRITICAL
+  # if and on which port to export prometheus statistics
+  prometheus:
+    enable: true
+    port: 8000
+
+# nodes that test should run on
+nodeLists:
+  local:
+    nodeNames: localhost
+#  hydraCompute:
+#    nodeNames: hydra[01-36]
+
+# the tests to run
+tests:
+  - name: Succeedscript
+    descr: test
+    # can be command, script, slurmscript or slurmPairScript
+    script:
+      path: ./testscripts/succeedscript.sh
+
