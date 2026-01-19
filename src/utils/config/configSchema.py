@@ -1,111 +1,100 @@
 from schema import Schema, SchemaError, Or, Optional
 
-config_schema = Schema({
-    "nodeLists": {
-        object: {
-            "nodeNames": str
-        }
-    },
-
-    "tests": [
-        Or({
-            "name": str,
-            Optional("descr"): str,
-            "script": {
-                "path": str
-            },
-            Optional("conditions"): 
-                {
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int)
-                    
-                }
-        },
-        {
-            "name": str,
-            Optional("descr"): str,
-            "command": str,
-            Optional("conditions"): 
-                {
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int)
-                    
-                }
-        },
-        {
-            "name": str,
-            Optional("descr"): str,
-            "slurmScript": {
-                "path": str,
-                "nodeLists": str,
-                Optional("options"): [
-                    str
-                ]
-            },
-            Optional("conditions"): 
-                Or({
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int),
-                    Optional("difference"): Or(float, int)
-                    
-                },
-                [{
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int),
-                    Optional("difference"): Or(float, int),
-                    #Optional("lessThen"): int,
-                    #Optional("greaterThen"): int,
-                    #Optional("equalTo"): int
-                    
-                }])
-        },
-        {
-            "name": str,
-            Optional("descr"): str,
-            "slurmPairScript": {
-                "path": str,
-                "pairSize": int,
-                "nodeLists": str,
-                Optional("options"): [
-                    str
-                ]
-            },
-            Optional("conditions"): 
-                Or({
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int),
-                    Optional("difference"): Or(float, int)
-                    
-                },
-                [{
-                    Optional("min"): Or(float, int),
-                    Optional("max"): Or(float, int),
-                    Optional("difference"): Or(float, int),
-                    #Optional("lessThen"): int,
-                    #Optional("greaterThen"): int,
-                    #Optional("equalTo"): int
-                    
-                }])
-        },
-        error="Test must be one of command, script, slurmscript or slurmPairScript"
-        )
-    ],
-    "settings": {
-        "interval": int,
-        "timeout": int,
-        "slurmdir": str,
-        Optional("output"): Or({
-            "dir": str,
-            "fileName": str,
-            "format": Or("pretty", "json")
-        }, "console"
-        ),
-        "prometheus": {
-            "port": int,
-            "enable": bool
-        },
-        "logging": {
-            "level": Or("INFO", "DEBUG", "CRITICAL", "ERROR", "WARN")
-        }
+nodeList_schema = Schema({
+    object: {
+        "nodeNames": str
     }
+}, name="nodeLists")
+
+settings_schema = Schema({
+    "interval": int,
+    "timeout": int,
+    "slurmdir": str,
+    Optional("output"): Or({
+        "dir": str,
+        "fileName": str,
+        "format": Or("pretty", "json")
+    }, "console"
+    ),
+    "prometheus": {
+        "port": int,
+        "enable": bool
+    },
+    "logging": {
+        "level": Or("INFO", "DEBUG", "CRITICAL", "ERROR", "WARN")
+    }
+}, name="settings")
+
+
+conditions_schema = Schema({
+    Optional("min"): Or(float, int),
+    Optional("max"): Or(float, int),
+    Optional("difference"): Or(float, int)
+    #Optional("lessThen"): int,
+    #Optional("greaterThen"): int,
+    #Optional("equalTo"): int
+}, name="conditions")
+
+script_test = Schema({
+    "name": str,
+    Optional("descr"): str,
+    "script": {"path": str},
+    Optional("conditions"): {
+        Optional("min"): Or(int, float),
+        Optional("max"): Or(int, float),
+    }
+}, name="script test")
+
+command_test = Schema({
+    "name": str,
+    Optional("descr"): str,
+    "command": str,
+    Optional("conditions"): {
+        Optional("min"): Or(int, float),
+        Optional("max"): Or(int, float),
+    }
+}, name="command test")
+
+slurm_test = Schema({
+    "name": str,
+    Optional("descr"): str,
+    "slurmScript": {
+        "path": str,
+        "nodeLists": str,
+        Optional("options"): [str],
+    },
+    Optional("conditions"): Or(
+        conditions_schema,
+        [ conditions_schema ]
+    ),
+}, name="slurmPair test")
+
+slurm_pair_test = Schema({
+    "name": str,
+    Optional("descr"): str,
+    "slurmPairScript": {
+        "path": str,
+        "pairSize": int,
+        "nodeLists": str,
+        Optional("options"): [str],
+    },
+    Optional("conditions"): Or(
+        conditions_schema,
+        [ conditions_schema ]
+    ),
+}, name="slurmPairScript test")
+
+test_schema = Or(
+    script_test,
+    command_test,
+    slurm_test,
+    slurm_pair_test,
+    error="Invalid test(s)! See -vv for more details." 
+)
+
+# schema for the config file
+config_schema = Schema({
+    "settings": settings_schema,
+    "nodeLists": nodeList_schema,
+    "tests": [ test_schema ],
 })

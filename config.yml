@@ -6,33 +6,70 @@ settings:
   # wait times between tests (only used with option -r/--repeat)
   interval: 3600
   timeout: 1000
-  # directories of the slurm binaries
+  # directory of the slurm binaries
   slurmdir: /usr/local/slurm/bin/
+  # can write to a file
   output:
     # directory/fileName of the log file
     dir: /var/log/clustok
     fileName: "test-%Y-%m-%d-%H"
-    format: pretty  # pretty/json
+    format: json # pretty/json
+  # or to the console
+  #output:
+  #  console
   logging:
     # verbosity level
-    level: DEBUG    # DEBUG/INFO/WARN/ERROR/CRITICAL
+    level: INFO    # DEBUG/INFO/WARN/ERROR/CRITICAL
   # if and on which port to export prometheus statistics
   prometheus:
     enable: true
     port: 8000
 
-# nodes that test should run on
+# nodes that tests should run on
 nodeLists:
-  local:
-    nodeNames: localhost
-#  hydraCompute:
-#    nodeNames: hydra[01-36]
+  hydraCompute:
+    nodeNames: hydra[01-5]
 
-# the tests to run
+# the tests to run:
 tests:
-  - name: Succeedscript
-    descr: test
-    # can be command, script, slurmscript or slurmPairScript
-    script:
-      path: ./testscripts/succeedscript.sh
+  # test can be of type: command, script, slurmScript or slurmPairScript
+  # different types support different options (see below)
 
+  - name: Command Test
+    # Optional:
+    descr: An optional description
+    command: "echo 6"
+    # Optional: set conditions that the output should follow 
+    # (can be int or float)
+    conditions:
+      min: 5
+      max: 7
+
+  - name: Script Test
+    descr: Executes a script
+    script:
+      # path to the script
+      path: ./testscripts/succeedscript.sh
+    # also supports the conditions min/max
+
+  - name: Slurm Script Test
+    descr: Runs the script via slurm
+    slurmScript:
+      path: ./testscripts/multilinetest.sh
+      # on which nodes to run
+      nodeLists: hydraCompute
+      # Optional: a list of options to pass to slurm
+      options:
+        - -c32
+    # supports the conditions min/max/difference
+    
+  - name: network_latency_paired
+    descr: Network latency between two pairs of nodes
+    slurmPairScript:
+      path: ./testscripts/datetest.sh
+      nodeLists: hydraCompute
+      # how many nodes to use at the same time
+      pairSize: 2
+      options:
+        - --ntasks-per-node=1
+    # supports the conditions min/max/difference

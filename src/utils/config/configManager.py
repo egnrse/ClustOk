@@ -23,10 +23,12 @@ class ConfigManager(Config):
 
     def validateConfig(self, config): 
         try:
-            config_schema.validate(config)
+            config_schema.validate(config, pass_error=True)
             self.logger.info('Configuration loaded sucessfully')
 
         except SchemaError as se:
             self.logger.error('Configuration is invalid. Exiting..')
-            self.logger.error(se)
+            self.logger.error(se.code)
+            self.logger.debug(se.autos)
+            #self.logger.debug(se.errors)
             exit(2)
