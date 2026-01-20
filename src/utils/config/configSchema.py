@@ -9,7 +9,11 @@ nodeList_schema = Schema({
 settings_schema = Schema({
     "interval": int,
     "timeout": int,
-    "slurmdir": str,
+    "slurm": {
+        "dir": str,
+        Optional("partition"): str,
+        Optional("args"): [str],
+    },
     Optional("output"): Or({
         "dir": str,
         "fileName": str,

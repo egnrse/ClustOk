@@ -8,6 +8,11 @@ class OutputSettings:
     dir: str
     format: str
 
+class SlurmSettings:
+    dir: str
+    partition: str
+    args: List[str]
+    
 class NodeLists:
     nodenames: str
 
@@ -22,7 +27,7 @@ class PrometheusSettings:
 class Settings:
     interval: int
     timeout: int
-    slurmdir: str
+    slurm: SlurmSettings
     prometheus: PrometheusSettings
     output: OutputSettings
 

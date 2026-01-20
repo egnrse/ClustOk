@@ -50,24 +50,45 @@ class SlurmHelper:
         return
 
     def getIdleNodes(self, nodeNames):
-        result = subprocess.run( [self.config.settings.slurmdir + '/sinfo', '-hN' ,'-p', 'q_staff', '-O', 'NodeList,StateCompact', '-n', nodeNames], stdout=subprocess.PIPE)
+        cmd = [self.config.settings.slurm.dir + '/sinfo',
+                '-hN',
+                '-O', 'NodeList,StateCompact',
+                '-n', nodeNames
+        ]
+        if hasattr(self.config.settings.slurm, 'partition'):
+            cmd.append("-p")
+            cmd.append(self.config.settings.slurm.partition)
+        #self.logger.debug("cmd: %s", cmd)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE)
         nodeInfo = result.stdout.decode('utf-8').splitlines()
         nodes = *map(lambda node: tuple(node.split()), nodeInfo),
         nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']), nodes),
 
         nodes = *list(map(lambda node: node[0], nodes)),
 
-        self.logger.info("%d/%d Nodes of %s are not down or drained and availiable for the test", len(nodes), len(nodeInfo), nodeNames)
+        self.logger.info("%d/%d Nodes of %s are available for the test", len(nodes), len(nodeInfo), nodeNames)
         return nodes
 
-    def srun(self, test, node: str):
-        if hasattr(test, 'options'):
-            #self.logger.debug(self.config.slurmdir + 'srun ' + ' '.join(test['options'])  + ' -p ', + 'q_staff ' + ' -w' + node + ' ' + test['path'])
+    def srun(self, test, node: str, name: str=""):
+        jobName="ClustOk "+name
+        cmd = [self.config.settings.slurm.dir + 'srun',
+                '-J', jobName,
+                '-w', node,
+        ]
 
-            return (node, Popen([self.config.settings.slurmdir + 'srun', *test.options, '-p', 'q_staff',  '-w', node, test.path], stdout=subprocess.PIPE))
-        else:
-            #self.logger.debug(self.config.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test['path'])
-            return (node, Popen([self.config.settings.slurmdir + 'srun', '-p', 'q_staff',  '-w', node, test.path], stdout=subprocess.PIPE))
+        # handle optional arguments
+        if hasattr(self.config.settings.slurm, 'partition'):
+            cmd.append("-p")
+            cmd.append(self.config.settings.slurm.partition)
+        if hasattr(self.config.settings.slurm, 'args'):
+            cmd.extend(self.config.settings.slurm.args)
+        if hasattr(test, 'options'):
+            cmd.extend(test.options)
+
+        cmd.append(test.path)
+        #self.logger.debug("cmd: %s", cmd)
+
+        return node, Popen(cmd, stdout=subprocess.PIPE)
 
     def collectResults(self, processes, testName):
         results = []
@@ -101,7 +122,7 @@ class SlurmHelper:
                 nodePair += nodes[(len(nodes) // test.pairSize) * j + i] + ',' 
 
             self.logger.debug("Executing test on node-pair %s", nodePair)
-            processes.add(self.srun(test, nodePair))
+            processes.add(self.srun(test, nodePair, name))
 
         if len(nodes) % test.pairSize != 0:
             nodePair = ''
@@ -109,7 +130,7 @@ class SlurmHelper:
                 nodePair += nodes[-j] + ',' 
 
             self.logger.debug("Executing test on node-pair %s (extra) ", nodePair)
-            processes.add(self.srun(test, nodePair))
+            processes.add(self.srun(test, nodePair, name))
 
         return self.collectResults(processes, name)
 
@@ -122,7 +143,7 @@ class SlurmHelper:
         # Execute command on every specified node
         for node in nodes:
             self.logger.debug("Executing test on node %s" % node)
-            processes.add(self.srun(test, node))
+            processes.add(self.srun(test, node, name))
 
         return self.collectResults(processes, name)
 

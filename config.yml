@@ -6,15 +6,22 @@ settings:
   # wait times between tests (only used with option -r/--repeat)
   interval: 3600
   timeout: 1000
-  # directory of the slurm binaries
-  slurmdir: /usr/local/slurm/bin/
-  # can write to a file
+  # slurm options
+  slurm:
+    # directory of the slurm binaries
+    dir: /usr/local/slurm/bin/
+    # Optional: a specific partition to run on
+    partition: q_staff
+    # Optional: arguments to always pass to srun
+    args:
+      - --comment="clustok job"
+  # write log to a file
   output:
     # directory/fileName of the log file
     dir: /var/log/clustok
     fileName: "test-%Y-%m-%d-%H"
     format: json # pretty/json
-  # or to the console
+  # or write the log to the console
   #output:
   #  console
   logging:
@@ -63,7 +70,7 @@ tests:
         - -c32
     # supports the conditions min/max/difference
     
-  - name: network_latency_paired
+  - name: Slurm Pair Script Test
     descr: Network latency between two pairs of nodes
     slurmPairScript:
       path: ./testscripts/datetest.sh
