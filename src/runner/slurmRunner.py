@@ -84,6 +84,14 @@ class SlurmHelper:
         nodes = self.parseNodeNames(test.nodeLists)
         nodes = self.getIdleNodes(nodes)
 
+        if test.pairSize > len(nodes):
+            self.logger.warning("pairSize cant be greater than the amount of available nodes: %i > %i", test.pairSize, len(nodes))
+            test.pairSize = len(nodes)
+        if test.pairSize < 1:
+            self.logger.warning("pairSize cant be smaller than 1: %i < 1", test.pairSize)
+            test.pairSize = 1
+
+
         processes = set()
 
         for i in range(0, len(nodes) // test.pairSize):
