@@ -11,15 +11,20 @@ class ConfigManager(Config):
     def __init__(self, logger: Logger, config):
         self.logger = logger
 
-        with open(config, 'r') as configFile:
-            # Load an validate config
-            config = safe_load(configFile)
-            self.validateConfig(config)
+        try:
+            with open(config, 'r') as configFile:
+                # Load an validate config
+                config = safe_load(configFile)
+                self.validateConfig(config)
 
-            # Parse config as object for better typesafety
-            self.config = DictToConf(config)
+                # Parse config as object for better typesafety
+                self.config = DictToConf(config)
 
-            self.logger.info("Found %d tests", len(self.config.tests))
+                self.logger.info("Found %d tests", len(self.config.tests))
+        except FileNotFoundError as e:
+            self.logger.debug(f"{e}")
+            self.logger.error(f"Config file not found: '{config}'")
+            exit(1)
 
     def validateConfig(self, config): 
         try:

@@ -64,7 +64,7 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
     exporters.append(ConsoleExporter.init(settings.output))
 
   elif (config.settings.output is not None):
-    exporters.append(FileExporter.init(settings.output))
+    exporters.append(FileExporter.init(logger, settings.output))
 
   # Main Loop
   while True:

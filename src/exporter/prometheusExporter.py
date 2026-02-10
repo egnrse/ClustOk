@@ -67,6 +67,12 @@ class PrometheusExporter(Exporter):
         exporter = PrometheusExporter(logger, config)
 
         exporter.logger.info('Starting prometheus server on port ' + str(config.settings.prometheus.port))
-        start_http_server(config.settings.prometheus.port)
-        # REGISTRY.register(exporter)
+        try:
+            start_http_server(config.settings.prometheus.port)
+            # REGISTRY.register(exporter)
+        except OSError as e:
+            exporter.logger.debug(f"{e}")
+            exporter.logger.error(f"Unable to start prometheus server on port '{config.settings.prometheus.port}'")
+            exit(1)
+
         return exporter

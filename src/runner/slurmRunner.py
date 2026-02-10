@@ -19,6 +19,17 @@ class SlurmTestRunner(Runner):
         self.logger = logger
         self.config = config
         self.slurmHelper = SlurmHelper(logger, config)
+
+        # test if slurm binaries exists
+        slurmdir = self.config.settings.slurm.dir
+        try:
+            open(f"{slurmdir}/srun", 'r')
+            open(f"{slurmdir}/sinfo", 'r')
+        except FileNotFoundError as e:
+            self.logger.debug(f"{e}")
+            self.logger.warning(f"Slurm binaries not found in: '{slurmdir}'")
+            #exit(1)
+
         return
 
     def execute(self) -> List[SingleResult]:

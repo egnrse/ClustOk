@@ -25,16 +25,24 @@ class LocalTestRunner(Runner):
             if hasattr(test, 'command'):
                 commandTest: CommandTest = test
                 self.logger.info('[%s]: Executing command-test..' % commandTest.name)
-                result = self.executeCommand(commandTest.command)
-
-                results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                try:
+                    result = self.executeCommand(commandTest.command)
+                    results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                except (OSError, FileNotFoundError, PermissionError) as e:
+                    self.logger.debug(f"{e}")
+                    self.logger.error(f"Unable to execute: '{commandTest.command}'")
+                    exit(1)
 
             elif hasattr(test, 'script'):
                 scriptTest: ScriptTest = test
                 self.logger.info('[%s]: Executing test-script..' % scriptTest.name)
-                result = self.executeSingleBash(scriptTest.script.path)
-
-                results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                try:
+                    result = self.executeSingleBash(scriptTest.script.path)
+                    results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                except (OSError, FileNotFoundError, PermissionError) as e:
+                    self.logger.debug(f"{e}")
+                    self.logger.error(f"Unable to execute the script: '{scriptTest.script.path}'")
+                    exit(1)
 
         return results
 

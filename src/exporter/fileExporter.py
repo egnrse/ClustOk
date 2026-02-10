@@ -1,5 +1,6 @@
 from io import TextIOWrapper
 from interfaces.exporter import Exporter
+from logging import Logger
 
 from utils.config.config import OutputSettings
 from datetime import datetime
@@ -32,38 +33,50 @@ class FileExporter(Exporter):
         jsoninfo["testresults"] = testResults
         jsoninfo["timestamp"] = datetime.now().isoformat()
         
-        with open(fileName + ".json", "w") as outputFile:
-            outputFile.write(json.dumps(jsoninfo, indent=4))
+        try:
+            with open(fileName + ".json", "w") as outputFile:
+                outputFile.write(json.dumps(jsoninfo, indent=4))
+        except (OSError, PermissionError) as e:
+            self.logger.debug(f"{e}")
+            self.logger.error(f"Cannot open output file for writing: '{fileName}.json'")
+            exit(1)
 
     def prettyPrint(self, testResults, fileName):
-        with open(fileName + ".txt", "w") as outputFile:
-            outputFile.write("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
+        try:
+            with open(fileName + ".txt", "w") as outputFile:
+                outputFile.write("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
 
 
-            # Iterate every testName
-            for results in testResults:
-                outputFile.write("\n=============================================\n")
-                outputFile.write(results['testName'] + ":\n\n")
-                outputFile.write("Summary:\n")
-                
-                for condition, evaluation in results['evaluations'].items():
-                    outputFile.write(condition + ":" + "\t" + str(evaluation[0]))
-                    outputFile.write("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
+                # Iterate every testName
+                for results in testResults:
+                    outputFile.write("\n=============================================\n")
+                    outputFile.write(results['testName'] + ":\n\n")
+                    outputFile.write("Summary:\n")
+                    
+                    if hasattr(results, 'evaluations'):
+                        for condition, evaluation in results['evaluations'].items():
+                            outputFile.write(condition + ":" + "\t" + str(evaluation[0]))
+                            outputFile.write("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
 
-                outputFile.write("Detail:\n")
-                outputFile.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
+                    outputFile.write("Detail:\n")
+                    outputFile.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
 
-                # Iterate every result
-                for result in results['detailedResults']:
-                    outputFile.write(result["nodes"] + "\t\t\t\t\t\t\t")
-                    outputFile.write(str(result["returncode"]) + "\t\t\t\t")
-                    outputFile.write(result["output"])
-                    outputFile.write('\n')
+                    # Iterate every result
+                    for result in results['detailedResults']:
+                        outputFile.write(result["nodes"] + "\t\t\t\t\t\t\t")
+                        outputFile.write(str(result["returncode"]) + "\t\t\t\t")
+                        outputFile.write(result["output"])
+                        outputFile.write('\n')
+        except (OSError, PermissionError) as e:
+            self.logger.debug(f"{e}")
+            self.logger.error(f"Cannot open output file for writing: '{fileName}.txt'")
+            exit(1)
 
     @staticmethod
-    def init(outputSettings: OutputSettings):
+    def init(logger: Logger, outputSettings: OutputSettings):
         exporter = FileExporter()
         exporter.dir = outputSettings.dir
         exporter.fileName = outputSettings.fileName
         exporter.format = outputSettings.format
+        exporter.logger = logger
         return exporter   
