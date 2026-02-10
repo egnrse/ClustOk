@@ -33,7 +33,7 @@ class SlurmTestRunner(Runner):
         return
 
     def execute(self) -> List[SingleResult]:
-        self.logger.info('Executing Basic Tests...')
+        self.logger.info('Executing Slurm Tests...')
         results = []
 
         for test in self.config.tests:

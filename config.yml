@@ -25,14 +25,15 @@ settings:
   #output:
   #  console
   logging:
-    # verbosity level
-    level: INFO    # DEBUG/INFO/WARN/ERROR/CRITICAL
+    # base verbosity level
+    level: WARN    # DEBUG/INFO/WARN/ERROR/CRITICAL
   # if and on which port to export prometheus statistics
   prometheus:
     enable: true
     port: 8000
 
-# nodes that tests should run on
+# nodes that slurm-tests should run on
+# (command-/script-tests always run on the machine that runs clustok)
 nodeLists:
   hydraCompute:
     nodeNames: hydra[01-5]

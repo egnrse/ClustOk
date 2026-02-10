@@ -26,12 +26,9 @@ class BaseEvaluator:
                 errors = []
                 if result['returncode'] != 0:
                     endResult = False
-                    errors.append('error: [%d]: %s' % result['returncode'], result['output'])
+                    errors.append('error: [%d]: %s' % (result['returncode'], result['output']))
                     failedNodes.append(result['nodes'])
 
-            # Check conditions of tests
-            if hasattr(test, 'conditions'):
-                
                 #if isinstance(conditions, list):
                 #    outputs = tuple(map(lambda output: output.split('\n'), outputs))
                 #    if len(conditions) != 0 and len(outputs[0]) != len(conditions):
@@ -42,13 +39,17 @@ class BaseEvaluator:
                 #        result &= self.evaluateSubCondition(outputs[i], conditions[i], summary)
 
                 #else:
-                outputs = (map(lambda res: res['output'], results))
 
-                testEvaluation = {}
-                testEvaluation['testName'] = testName
-                testEvaluation['detailedResults'] = results
+            testEvaluation = {}
+            testEvaluation['testName'] = testName
+            testEvaluation['detailedResults'] = results
+
+            # Check conditions of tests
+            if hasattr(test, 'conditions'):
+                outputs = (map(lambda res: res['output'], results))
                 testEvaluation['evaluations'] = self.evaluateSubCondition(outputs, test.conditions)
-                endResults.append(testEvaluation)
+
+            endResults.append(testEvaluation)
 
         return endResults
 
