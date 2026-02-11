@@ -14,6 +14,19 @@ Overview over the directory structure:
 │  └─ utils
 │     ├─ config/              config file reader
 │     └─ logger/              custom logger
+├─ tests/                     unit tests
 ├─ testfiles/                 files for test that we use
 └─ testscripts/               script for test that we use
 ```
+
+
+## Tests
+There are some unit-tests in the [tests/](./tests/) directory.
+
+```sh
+# install modules needed for the unti-tests
+pip install -U pytest pytest-subproccess
+# run the tests
+pytest
+```
+
