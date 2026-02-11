@@ -37,7 +37,7 @@ python setup.py install
 
 ```
 SYNOPSIS
-    clustOk <flags>
+    clustok <flags>
 
 FLAGS
     -c, --config=CONFIG

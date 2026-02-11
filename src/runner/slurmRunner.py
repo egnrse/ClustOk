@@ -82,7 +82,7 @@ class SlurmHelper:
 
     def srun(self, test, node: str, name: str=""):
         jobName="ClustOk "+name
-        cmd = [self.config.settings.slurm.dir + 'srun',
+        cmd = [self.config.settings.slurm.dir + '/srun',
                 '-J', jobName,
                 '-w', node,
         ]
