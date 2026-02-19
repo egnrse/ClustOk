@@ -1,15 +1,15 @@
-#
+# testing runner
 import pytest, logging
 from psutil import Popen
 
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
 from runner.slurmRunner import SlurmTestRunner
+from runner.localRunner import LocalTestRunner
 
 
 #slurm_conf_min = {'settings': {'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'tests': []}
 slurm_conf = {'settings': {'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'nodeLists': {'testCompute': {'nodeNames': 'testnode[01-9]'}}, 'tests': [{'name': 'SlurmScript', 'descr': '', 'slurmScript': {'path': './test.sh', 'nodeLists': 'testCompute'}}, {'name': 'SlurmPairScript', 'descr': '', 'slurmPairScript': {'path': './test.sh', 'nodeLists': 'testCompute', 'pairSize': 2}}]}
-#example_conf = {'settings': {'interval': 3600, 'timeout': 1000, 'slurm': {'dir': '/usr/local/slurm/bin/', 'partition': 'q_staff', 'args': ['--comment="clustok job"']}, 'output': {'dir': './', 'fileName': 'log', 'format': 'json'}, 'logging': {'level': 'INFO'}, 'prometheus': {'enable': False, 'port': 8000}}, 'nodeLists': {'hydraCompute': {'nodeNames': 'hydra[01-5]'}}, 'tests': [{'name': 'Command Test', 'descr': 'An optional description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 
 class TestSlurmRunner:
     # prepare some general things
@@ -76,13 +76,95 @@ class TestSlurmRunner:
             assert any(exp['output'] == act['output'] for act in result)
             assert any(exp['returncode'] == act['returncode'] for act in result)
 
-#    def test_try(self, capsys, fp):
-#        sr = self.prepare(fp)
-#        Popen(["./invalid/directory/srun",'-J', 'ClustOk Slurm', '-w', 'testnode02'])
-#        Popen(["./invalid/directory/srun",'-J', 'ClustOk Slurm', '-w', 'testnode02'])
+
+local_conf = {'tests': [{'name': 'Command Test', 'descr': 'a description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'script description', 'script': {'path': './testpath/script.sh'}}]}
+#example_conf = {'settings': {'interval': 3600, 'timeout': 1000, 'slurm': {'dir': '/usr/local/slurm/bin/', 'partition': 'q_staff', 'args': ['--comment="clustok job"']}, 'output': {'dir': './', 'fileName': 'log', 'format': 'json'}, 'logging': {'level': 'INFO'}, 'prometheus': {'enable': False, 'port': 8000}}, 'nodeLists': {'hydraCompute': {'nodeNames': 'hydra[01-5]'}}, 'tests': [{'name': 'Command Test', 'descr': 'An optional description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 
 class TestLocalRunner:
-    # TODO
-    pass
+    def raiseFileNotFoundError(self, process):
+        process.returncode = 1
+        raise FileNotFoundError("test exception raised by subprocess")
+
+    def test_localInfo(self, capsys, fp):
+        fp.register(["echo", "6"], stdout="6")
+        fp.register(["./testpath/script.sh", fp.any()], stdout="test output")
+        logger = CustomLogger('[ClustOk]')
+        logger.setLevel(logging.DEBUG)
+        config = DictToConf(local_conf)
+        lr = LocalTestRunner(logger, config)
+
+        lr.execute()
+        captured = capsys.readouterr()
+        assert "INFO - " in captured.err
+        assert "Executing Basic Tests" in captured.err
+        assert "[Command Test]: Executing command-test" in captured.err
+        assert "[Script Test]: Executing test-script" in captured.err
+
+    def test_localNotFoundErrorCommand(self, capsys, fp):
+        fp.register(["echo", "6"], callback=self.raiseFileNotFoundError)
+        fp.register(["./testpath/script.sh", fp.any()], stdout="test output")
+        logger = CustomLogger('[ClustOk]')
+        logger.setLevel(logging.DEBUG)
+        config = DictToConf(local_conf)
+        lr = LocalTestRunner(logger, config)
+
+        # catch SystemExit
+        with pytest.raises(SystemExit) as e:
+            lr.execute()
+        assert e.value.code == 1
+        captured = capsys.readouterr()
+        assert "DEBUG - test exception raised by subprocess" in captured.err
+        assert "ERROR - Unable to execute: 'echo 6'" in captured.err
+
+    def test_localNotFoundErrorScript(self, capsys, fp):
+        fp.register(["echo", "6"], stdout="6")
+        fp.register(["./testpath/script.sh", fp.any()], callback=self.raiseFileNotFoundError)
+        logger = CustomLogger('[ClustOk]')
+        logger.setLevel(logging.DEBUG)
+        config = DictToConf(local_conf)
+        lr = LocalTestRunner(logger, config)
+
+        # catch SystemExit
+        with pytest.raises(SystemExit) as e:
+            lr.execute()
+        assert e.value.code == 1
+        captured = capsys.readouterr()
+        assert "DEBUG - test exception raised by subprocess" in captured.err
+        assert "ERROR - Unable to execute the script: './testpath/script.sh'" in captured.err
+
+    def test_localCommand(self, capsys, fp):
+        fp.register(["echo", "6"], stdout="6")
+        fp.register(["./testpath/script.sh", fp.any()], stdout="test output")
+        logger = CustomLogger('[ClustOk]')
+        logger.setLevel(logging.DEBUG)
+        config = DictToConf(local_conf)
+        lr = LocalTestRunner(logger, config)
+
+        result = lr.execute()
+        expected = {
+            'name': 'Command Test',
+            'nodes': 'local',
+            'output': '6',
+            'returncode': 0
+        }
+        assert expected in result
+
+    def test_localScript(self, capsys, fp):
+        fp.register(["echo", "6"], stdout="testecho")
+        fp.register(["./testpath/script.sh", fp.any()], stdout="testtext\nline2")
+        logger = CustomLogger('[ClustOk]')
+        logger.setLevel(logging.DEBUG)
+        config = DictToConf(local_conf)
+        lr = LocalTestRunner(logger, config)
+
+        result = lr.execute()
+        expected = {
+            'name': 'Script Test',
+            'nodes': 'local',
+            'output': 'testtext\nline2',
+            'returncode': 0
+        }
+        assert expected in result
+
 
 # vim: set et ts=4 sw=4 sts=4:
