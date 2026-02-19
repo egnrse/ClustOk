@@ -83,7 +83,7 @@ class BaseEvaluator:
         self.logger.debug("Minimum result is %f out of required %f", min_val, minThreshold)
         if (min_val < minThreshold):
             error = f'Min value threshold violated. {min_val} instead of {minThreshold}'
-            self.logger.warn(error)
+            self.logger.warning(error)
             return (False, min_val, minThreshold, error)
 
         return (True, min_val, minThreshold, None)
@@ -91,10 +91,10 @@ class BaseEvaluator:
     def evaluateMax(self, results, maxThreshold):
         max_val = max(results)
 
-        self.logger.debug("Maximum result is %f of %f allowed", max_val, maxThreshold)
+        self.logger.debug("Maximum result is %f of allowed %f", max_val, maxThreshold)
         if (max_val > maxThreshold):
             error = f'Max value threshold violated. {max_val} instead of {maxThreshold}'
-            self.logger.warn(error)
+            self.logger.warning(error)
             return (False, max_val, maxThreshold, error)
         
         return (True, max_val, maxThreshold, None)
