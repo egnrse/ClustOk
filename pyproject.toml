@@ -38,3 +38,9 @@ Repository = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 
 [project.scripts]
 clustok = "clustok:main"
+
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

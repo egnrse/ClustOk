@@ -10,8 +10,9 @@ def test_invalid_conf1(capsys):
     assert "Config file not found: " in captured.err
 
 
-#def test_try():
-#    co(config="./test_conf.yml", repeat=False, v=True, vv=True)
-#    pass
+@pytest.mark.skip(reason="test not implemented")
+def test_todo():
+    assert False
+    #co(config="./test_conf.yml", repeat=False, v=True, vv=True)
 
 # vim: set et ts=4 sw=4 sts=4:

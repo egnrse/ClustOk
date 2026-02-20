@@ -124,10 +124,9 @@ class TestBaseEvaluater:
         assert "Maximum result is -10" in captured.err
         assert "of allowed 7" in captured.err
 
+    @pytest.mark.skip(reason="test not implemented")
     def test_Diff(self):
-        # TODO
-        #assert False
-        pass
+        assert False
         
 
 # vim: set et ts=4 sw=4 sts=4:
