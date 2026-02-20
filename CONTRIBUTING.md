@@ -24,7 +24,7 @@ Overview over the directory structure:
 There are some unit-tests in the [tests/](./tests/) directory.
 
 ```sh
-# install modules needed for the unti-tests
+# install modules needed for the unit-tests
 pip install -U pytest pytest-subproccess
 # run the tests
 pytest
