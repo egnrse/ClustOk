@@ -1,0 +1,25 @@
+stages:
+    - test
+
+unit-test:
+    stage: test
+    image: python:3.12
+
+    before_script:
+        - python -m pip install --upgrade pip
+        # install dependencies
+        - pip install .[test]
+
+    script:
+        - pytest --strict-markers --tb=short --junitxml=report.xml --durations=10 -v
+
+    artifacts:
+        when: always
+        reports:
+            junit: report.xml
+        paths:
+            - report.xml
+        expire_in: 1 week
+
+    only:
+        - main
