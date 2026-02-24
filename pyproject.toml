@@ -49,4 +49,5 @@ python_functions = ["test_*"]
 test = [
 	"pytest>=8.0",
 	"pytest-subprocess",
+	"requests",
 ]
