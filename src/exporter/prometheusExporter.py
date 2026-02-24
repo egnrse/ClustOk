@@ -34,18 +34,18 @@ class PrometheusExporter(Exporter):
         self.testResults = testResults
 
         for results in testResults:
-           
-            for condition, evaluation in results['evaluations'].items():
-                collectorName = results["testName"] + "_" + condition
-                totalResult = True
+            if 'evaluations' in results:
+                for condition, evaluation in results['evaluations'].items():
+                    collectorName = results["testName"] + "_" + condition
+                    totalResult = True
 
-                self.collectors[collectorName].set(evaluation[1])
+                    self.collectors[collectorName].set(evaluation[1])
 
-                if evaluation[0] == True:
-                    self.collectors[collectorName + "_success" ].state('good')
-                else:
-                    totalResult = False
-                    self.collectors[collectorName + "_success" ].state('faulty')
+                    if evaluation[0] == True:
+                        self.collectors[collectorName + "_success" ].state('good')
+                    else:
+                        totalResult = False
+                        self.collectors[collectorName + "_success" ].state('faulty')
 
             if (totalResult):
                 self.collectors[results["testName"]].state('good')

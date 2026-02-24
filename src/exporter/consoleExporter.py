@@ -20,11 +20,14 @@ class ConsoleExporter(Exporter):
             print("\n=============================================")
             print(results['testName'] + ":\n")
 
-            print('Summary:\n')
-            for condition, evaluation in results['evaluations'].items():
+            if 'evaluations' in results:
+                print('Evaluation:')
+                for condition, evaluation in results['evaluations'].items():
                     print(condition + ":" + "\t" + str(evaluation[0]), end="")
-                    print("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
+                    print("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed")
+                print("\n")
 
+            print("Detail:")
             print("NODE(s),CODE,OUTPUT")
 
             # Iterate every result

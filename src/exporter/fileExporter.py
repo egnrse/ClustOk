@@ -46,17 +46,17 @@ class FileExporter(Exporter):
             with open(fileName + ".txt", "w") as outputFile:
                 outputFile.write("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")
 
-
                 # Iterate every testName
                 for results in testResults:
                     outputFile.write("\n=============================================\n")
                     outputFile.write(results['testName'] + ":\n\n")
-                    outputFile.write("Summary:\n")
                     
-                    if hasattr(results, 'evaluations'):
+                    if ('evaluations' in results):
+                        outputFile.write("Evaluation:\n")
                         for condition, evaluation in results['evaluations'].items():
                             outputFile.write(condition + ":" + "\t" + str(evaluation[0]))
-                            outputFile.write("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n\n")
+                            outputFile.write("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed \n")
+                        outputFile.write("\n")
 
                     outputFile.write("Detail:\n")
                     outputFile.write("NODE(s)\t\t\t\t\t\t\tCODE\t\t\tOUTPUT\n")
