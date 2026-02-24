@@ -4,34 +4,14 @@ An universal cluster monitoring tool, that allows to easily execute arbitrary te
 
 
 ## Installing
-(On some distros you might need to replace `pip` with `pipx`.)
-
 You need `python3` and `pip` (or `pipx`) installed on your system.
 
-Then clone the repo and cd into it:
+Then clone the repo, cd into it and install the package:
 ```sh
 git clone https://hellogitty.par.tuwien.ac.at/sysadmin/clustok.git
 cd clustok
+pip install -U .
 ```
-
-Afterwards run:
-```sh
-pip install build
-python -m build
-pip install dist/clustok-*.whl
-```
-
-To install this package in development mode, instead run:  
-```sh
-pip install -e .
-```
-
-
-Deprecated (ONLY before v0.2.0):
-```sh
-python setup.py install
-```
-
 
 ## Usage
 

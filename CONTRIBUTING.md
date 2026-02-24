@@ -19,13 +19,34 @@ Overview over the directory structure:
 └─ testscripts/               script for test that we use
 ```
 
+## Install (dev)
+You might want to use a virtual environment:  
+```sh
+# create a venv (in the current location)
+python -m venv .venv
+# actiave the venv
+source .venv/bin/activate
+# to deactivate a venv again run 'deactivate'
+```
+
+To install the package in development mode  
+run the following in the root of the repo:  
+```sh
+pip install -e .
+```
+
+To create and install a release build run:  
+```sh
+python -m build
+pip install dist/clustok-*.whl
+```
 
 ## Tests
 There are some unit-tests in the [tests/](./tests/) directory.
 
 ```sh
 # install modules needed for the unit-tests
-pip install -U pytest pytest-subproccess
+pip install -U .[test]
 # run the tests
 pytest
 ```
