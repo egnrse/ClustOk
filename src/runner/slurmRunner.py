@@ -2,17 +2,15 @@ from logging import Logger
 import subprocess
 
 from psutil import Popen
+from typing import List
+from pathlib import Path
+from functools import reduce
 
 from interfaces.runner import Runner
 from utils.config.config import Config
-
 from interfaces.test import SlurmScriptPairTest, SlurmScriptTest, SlurmPairScript, SlurmScript
-
 from interfaces.testresult import SingleResult
 
-from functools import reduce
-
-from typing import List
 
 class SlurmTestRunner(Runner):
     def __init__(self, logger: Logger, config: Config):
@@ -96,7 +94,8 @@ class SlurmHelper:
         if hasattr(test, 'options'):
             cmd.extend(test.options)
 
-        cmd.append(test.path)
+        fullPath = Path(test.path).resolve()
+        cmd.append(fullPath)
         #self.logger.debug("cmd: %s", cmd)
 
         return node, Popen(cmd, stdout=subprocess.PIPE)
