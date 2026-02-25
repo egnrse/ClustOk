@@ -4,6 +4,7 @@ Overview over the directory structure:
 ```
 ├─ config.example.yml         deprecated config
 ├─ config.yml                 example config
+├─ example/                   files for tests that we use
 ├─ pyproject.toml             project packageing information
 ├─ src/                       program source code
 │  ├─ clustok/
@@ -14,9 +15,7 @@ Overview over the directory structure:
 │  └─ utils
 │     ├─ config/              config file reader
 │     └─ logger/              custom logger
-├─ tests/                     unit tests
-├─ testfiles/                 files for test that we use
-└─ testscripts/               script for test that we use
+└─ tests/                     unit tests
 ```
 
 ## Install (dev)

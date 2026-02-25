@@ -57,13 +57,13 @@ tests:
     descr: Executes a script
     script:
       # path to the script
-      path: ./testscripts/succeedscript.sh
+      path: ./example/testscripts/succeedscript.sh
     # also supports the conditions min/max
 
   - name: Slurm Script Test
     descr: Runs the script via slurm
     slurmScript:
-      path: ./testscripts/multilinetest.sh
+      path: ./example/testscripts/multilinetest.sh
       # on which nodes to run
       nodeLists: hydraCompute
       # Optional: a list of options to pass to slurm
@@ -72,9 +72,9 @@ tests:
     # supports the conditions min/max/difference
     
   - name: Slurm Pair Script Test
-    descr: Network latency between two pairs of nodes
+    descr: Runs a script on multiple nodes at the same time
     slurmPairScript:
-      path: ./testscripts/datetest.sh
+      path: ./example/testscripts/datetest.sh
       nodeLists: hydraCompute
       # how many nodes to use at the same time
       pairSize: 2

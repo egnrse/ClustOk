@@ -1,6 +1,7 @@
 local-config.yml
 log.*
 report/xml
+example/test-*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

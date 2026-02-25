@@ -1,0 +1,85 @@
+#  clustok config
+# run with: clustok -vv -c ./example-config.yml
+# from this directory (it uses local paths)
+
+# general settings
+settings:
+  # wait times between tests (only used with option -r/--repeat)
+  interval: 14400
+  timeout: 1000
+  # slurm options
+  slurm:
+    # directory of the slurm binaries
+    dir: /usr/local/slurm/bin/
+    # Optional: a specific partition to run on
+    partition: q_staff
+    # Optional: arguments to always pass to srun
+    args:
+      - --comment="clustok job"
+  # write log to a file
+  output:
+    # directory/fileName of the log file
+    dir: ./
+    fileName: "test-%Y-%m-%d-%H"
+    format: json
+  logging:
+    level: INFO
+  # if and on which port to export prometheus statistics
+  prometheus:
+    enable: true
+    port: 8005
+
+# nodes that tests should run on
+nodeLists:
+  hydraCompute:
+    nodeNames: hydra[01-36]
+
+# the tests to run
+tests:
+  # test can be of type: command, script, slurmScript or slurmPairScript
+  # different types support different options (see below)
+
+  - name: time_synchronization
+    descr: Maximum timedifference between two nodes in milliseconds
+    slurmPairScript:
+      path: ./testscripts/timedrift_pair.sh
+      nodeLists: hydraCompute
+      pairSize: 2
+      options:
+        - --ntasks-per-node=1
+    conditions:
+      max: 0.00001000
+
+  - name: memory_bandwidth
+    descr: Memory bandwidth with Stream, 100M and Triad value
+    slurmScript:
+      path: ./testscripts/memory_bandwidth.sh
+      nodeLists: hydraCompute
+      options:
+        - -c32
+    conditions:
+      min: 110000
+
+  - name: network_bandwidth_paired
+    descr: Network Bandwidth in pairs of two nodes
+    slurmPairScript:
+      path: ./testscripts/bandwidth.sh
+      nodeLists: hydraCompute
+      pairSize: 2
+      options:
+        - -mblock:cyclic
+        - --ntasks-per-node=2
+    conditions:
+      min: 23000
+
+  - name: network_latency_paired
+    descr: Network latency between two pairs of nodes
+    slurmPairScript:
+      path: ./testscripts/latency.sh
+      nodeLists: hydraCompute
+      pairSize: 2
+      options:
+        - -N2
+        - --ntasks-per-node=1
+    conditions:
+      max: 280
