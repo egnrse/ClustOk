@@ -11,7 +11,10 @@ from exporter.prometheusExporter import PrometheusExporter
 from exporter.consoleExporter import ConsoleExporter
 
 
-input = [{'detailedResults': [{'name': 'Test min/max', 'nodes': 'local', 'output': '6', 'returncode': 0}], 'evaluations': {'max': (True, 6.0, 7, None), 'min': (True, 6.0, 5, None)}, 'testName': 'Test min/max'}]
+input = [
+    {'detailedResults': [{'name': 'Test min/max', 'nodes': 'local', 'output': '6', 'returncode': 0}], 'evaluations': {'max': (True, 6.0, 7, None), 'min': (True, 6.0, 5, None)}, 'testName': 'Test min/max'},
+    {'detailedResults': [{'name': 'StringTest', 'nodes': 'local', 'output': 'a test string\nline2', 'returncode': 0}], 'testName': 'StringTest'}
+]
 
 
 class TestConsoleExporter:

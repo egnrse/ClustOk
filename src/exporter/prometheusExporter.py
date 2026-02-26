@@ -33,6 +33,13 @@ class PrometheusExporter(Exporter):
     def update(self, testResults):
         self.testResults = testResults
 
+        # TODO: make this a config option
+        self.config.settings.prometheus.exportStrings = True
+        if self.config.settings.prometheus.exportStrings:
+            exportStrings = True
+        else:
+            exportStrings = False
+
         for results in testResults:
             if 'evaluations' in results:
                 for condition, evaluation in results['evaluations'].items():
@@ -47,19 +54,31 @@ class PrometheusExporter(Exporter):
                         totalResult = False
                         self.collectors[collectorName + "_success" ].state('faulty')
 
-            if (totalResult):
-                self.collectors[results["testName"]].state('good')
-            else:
-                self.collectors[results["testName"]].state('faulty')
+                if (totalResult):
+                    self.collectors[results["testName"]].state('good')
+                else:
+                    self.collectors[results["testName"]].state('faulty')
 
         
+
             for result in results['detailedResults']:
                 collectorName = results["testName"] + result["nodes"].replace(',', "")
                 
                 if collectorName not in self.collectors:
-                    self.collectors[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"] )
+                    self.collectors[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"])
+                if exportStrings:
+                    collectorNameStr = results["testName"] + result["nodes"].replace(',', "") + "_str"
+                    if collectorNameStr not in self.collectors:
+                        self.collectors[collectorNameStr] = Gauge(collectorNameStr, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"] + " as a String", ["output"])
+                    self.collectors[collectorNameStr].labels(output=str(result["output"])).set(1)
 
-                self.collectors[collectorName].set(result["output"])
+                try:
+                    self.collectors[collectorName].set(result["output"])
+                except (ValueError, TypeError) as e:
+                    self.collectors[collectorName].set(-1)
+                    if not exportStrings:
+                        self.logger.debug(f"{e}")
+                        self.logger.info(f"prometheus: ignoring result '{result['output']}' (NaN) from '{results['testName']}'")
    
 
     @staticmethod
