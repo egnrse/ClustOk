@@ -2,7 +2,6 @@
 
 Overview over the directory structure:
 ```
-├─ config.example.yml         deprecated config
 ├─ config.yml                 example config
 ├─ example/                   files for tests that we use
 ├─ pyproject.toml             project packageing information
