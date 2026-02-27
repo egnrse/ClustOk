@@ -1,6 +1,5 @@
 # testing runner
 import pytest, logging
-from psutil import Popen
 
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
@@ -78,7 +77,6 @@ class TestSlurmRunner:
 
 
 local_conf = {'tests': [{'name': 'Command Test', 'descr': 'a description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'script description', 'script': {'path': './testpath/script.sh'}}]}
-#example_conf = {'settings': {'interval': 3600, 'timeout': 1000, 'slurm': {'dir': '/usr/local/slurm/bin/', 'partition': 'q_staff', 'args': ['--comment="clustok job"']}, 'output': {'dir': './', 'fileName': 'log', 'format': 'json'}, 'logging': {'level': 'INFO'}, 'prometheus': {'enable': False, 'port': 8000}}, 'nodeLists': {'hydraCompute': {'nodeNames': 'hydra[01-5]'}}, 'tests': [{'name': 'Command Test', 'descr': 'An optional description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 
 class TestLocalRunner:
     def raiseFileNotFoundError(self, process):

@@ -37,7 +37,6 @@ class TestBaseEvaluater:
         assert "output" in result[0]['detailedResults'][0]
         assert "returncode" in result[0]['detailedResults'][0]
 
-
     def test_Min1(self, capsys):
         logger = CustomLogger('[ClustOk]')
         logger.setLevel(logging.DEBUG)
