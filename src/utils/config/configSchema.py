@@ -14,15 +14,17 @@ settings_schema = Schema({
         Optional("partition"): str,
         Optional("args"): [str],
     },
-    Optional("output"): Or({
-        "dir": str,
-        "fileName": str,
-        "format": Or("pretty", "json")
-    }, "console"
-    ),
-    Optional("prometheus"): {
-        "port": int,
-        "enable": bool
+    Optional("output"): {
+		Optional("file"): {
+			"dir": str,
+			"fileName": str,
+			"format": Or("pretty", "json"),
+		},
+		Optional("console"): bool,
+		Optional("prometheus"): {
+			"port": int,
+			"enable": bool
+		},
     },
     Optional("logging"): {
         "level": Or("INFO", "DEBUG", "CRITICAL", "ERROR", "WARN")

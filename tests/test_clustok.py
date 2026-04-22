@@ -5,7 +5,7 @@ from pathlib import Path
 from clustok.clustok import realmain as co
 
 
-#example_conf = {'settings': {'interval': 3600, 'timeout': 1000, 'slurm': {'dir': '/usr/local/slurm/bin/', 'partition': 'q_staff', 'args': ['--comment="clustok job"']}, 'output': {'dir': './', 'fileName': 'log', 'format': 'json'}, 'logging': {'level': 'INFO'}, 'prometheus': {'enable': False, 'port': 8000}}, 'nodeLists': {'hydraCompute': {'nodeNames': 'hydra[01-5]'}}, 'tests': [{'name': 'Command Test', 'descr': 'An optional description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
+#example_conf = {'settings': {'interval': 3600, 'timeout': 1000, 'slurm': {'dir': '/usr/local/slurm/bin/', 'partition': 'q_staff', 'args': ['--comment="clustok job"']}, 'output': {'file':{'dir': './', 'fileName': 'log', 'format': 'json'}, 'console': False, 'prometheus': {'enable': False, 'port': 8000}}, 'logging': {'level': 'INFO'}}, 'nodeLists': {'hydraCompute': {'nodeNames': 'hydra[01-5]'}}, 'tests': [{'name': 'Command Test', 'descr': 'An optional description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 
 def test_invalid_conf1(capsys):
     with pytest.raises(SystemExit):

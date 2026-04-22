@@ -34,8 +34,8 @@ class PrometheusExporter(Exporter):
         self.testResults = testResults
 
         # TODO: make this a config option
-        self.config.settings.prometheus.exportStrings = True
-        if self.config.settings.prometheus.exportStrings:
+        self.config.settings.output.prometheus.exportStrings = True
+        if self.config.settings.output.prometheus.exportStrings:
             exportStrings = True
         else:
             exportStrings = False
@@ -85,13 +85,13 @@ class PrometheusExporter(Exporter):
     def init(logger: Logger, config: Config):
         exporter = PrometheusExporter(logger, config)
 
-        exporter.logger.info('Starting prometheus server on port ' + str(config.settings.prometheus.port))
+        exporter.logger.info('Starting prometheus server on port ' + str(config.settings.output.prometheus.port))
         try:
-            start_http_server(config.settings.prometheus.port)
+            start_http_server(config.settings.output.prometheus.port)
             # REGISTRY.register(exporter)
         except OSError as e:
             exporter.logger.debug(f"{e}")
-            exporter.logger.error(f"Unable to start prometheus server on port '{config.settings.prometheus.port}'")
+            exporter.logger.error(f"Unable to start prometheus server on port '{config.settings.output.prometheus.port}'")
             exit(1)
 
         return exporter

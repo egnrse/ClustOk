@@ -57,14 +57,17 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
   runners.append(LocalTestRunner(logger, config))
   runners.append(SlurmTestRunner(logger, config))
 
-  if (config.settings.prometheus.enable):
+  if (config.settings.output.prometheus.enable):
     exporters.append(PrometheusExporter.init(logger, config))
 
-  if (config.settings.output == "console"):
+  if (config.settings.output.console):
     exporters.append(ConsoleExporter.init(settings.output))
 
-  elif (config.settings.output is not None):
-    exporters.append(FileExporter.init(logger, settings.output))
+  if (config.settings.output.file is not None):
+    exporters.append(FileExporter.init(logger, settings.output.file))
+
+  if len(exporters) <= 0:
+    logger.warn("No output type active (eg.: file/console/prometheus)")
 
   # Main Loop
   while True:

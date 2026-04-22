@@ -6,10 +6,14 @@ DEFAULTS = {
         "logging": {
             "level": "WARN"
         },
-        "prometheus": {
-            "port": 8000,
-            "enable": False
-        },
+        "output": {
+            "file": None,
+            "console": False,
+            "prometheus": {
+                "port": 8000,
+                "enable": False,
+            },
+        }
     }
 }
 

@@ -16,22 +16,23 @@ settings:
     # Optional: arguments to always pass to srun
     args:
       - --comment="clustok job"
-  # write log to a file
+  # what to do with the output
   output:
-    # directory/fileName of the log file
-    dir: /var/log/clustok
-    fileName: "test-%Y-%m-%d-%H"
-    format: json # pretty/json
-  # or write the log to the console
-  #output:
-  #  console
+    # write the output to a file
+    file:
+      # directory/fileName of the output file
+      dir: /var/log/clustok
+      fileName: "test-%Y-%m-%d-%H"
+      format: json # pretty/json
+    # write output to the console
+    console: false
+    # export output as prometheus statistics
+    prometheus:
+      enable: true
+      port: 8000
   logging:
     # base verbosity level
     level: WARN    # DEBUG/INFO/WARN/ERROR/CRITICAL
-  # if and on which port to export prometheus statistics
-  prometheus:
-    enable: true
-    port: 8000
 
 # nodes that slurm-tests should run on
 # (command-/script-tests always run on the machine that runs clustok)
