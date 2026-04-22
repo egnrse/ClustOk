@@ -7,8 +7,8 @@ nodeList_schema = Schema({
 }, name="nodeLists")
 
 settings_schema = Schema({
-    "interval": int,
-    "timeout": int,
+    Optional("interval"): int,
+    Optional("timeout"): int,
     "slurm": {
         "dir": str,
         Optional("partition"): str,
@@ -20,11 +20,11 @@ settings_schema = Schema({
         "format": Or("pretty", "json")
     }, "console"
     ),
-    "prometheus": {
+    Optional("prometheus"): {
         "port": int,
         "enable": bool
     },
-    "logging": {
+    Optional("logging"): {
         "level": Or("INFO", "DEBUG", "CRITICAL", "ERROR", "WARN")
     }
 }, name="settings")
