@@ -8,7 +8,7 @@ from runner.localRunner import LocalTestRunner
 
 
 #slurm_conf_min = {'settings': {'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'tests': []}
-slurm_conf = {'settings': {'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'nodeLists': {'testCompute': {'nodeNames': 'testnode[01-9]'}}, 'tests': [{'name': 'SlurmScript', 'descr': '', 'slurmScript': {'path': './test.sh', 'nodeLists': 'testCompute'}}, {'name': 'SlurmPairScript', 'descr': '', 'slurmPairScript': {'path': './test.sh', 'nodeLists': 'testCompute', 'pairSize': 2}}]}
+slurm_conf = {'settings': {'timeout': '-1', 'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'nodeLists': {'testCompute': {'nodeNames': 'testnode[01-9]'}}, 'tests': [{'name': 'SlurmScript', 'descr': '', 'slurmScript': {'path': './test.sh', 'nodeLists': 'testCompute'}}, {'name': 'SlurmPairScript', 'descr': '', 'slurmPairScript': {'path': './test.sh', 'nodeLists': 'testCompute', 'pairSize': 2}}]}
 
 class TestSlurmRunner:
     # prepare some general things

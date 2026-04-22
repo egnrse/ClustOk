@@ -5,6 +5,7 @@
 settings:
   # wait times between tests (only used with option -r/--repeat)
   interval: 3600
+  # max timeout for tests (in sec; includes slurm queue time; disabled if < 0)
   timeout: 1000
   # slurm options
   slurm:

@@ -26,8 +26,8 @@ class LocalTestRunner(Runner):
                 commandTest: CommandTest = test
                 self.logger.info('[%s]: Executing command-test..' % commandTest.name)
                 try:
-                    result = self.executeCommand(commandTest.command)
-                    results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                    result = self.executeCommand(commandTest.command, commandTest.name)
+                    results.append(result)
                 except (OSError, FileNotFoundError, PermissionError) as e:
                     self.logger.debug(f"{e}")
                     self.logger.error(f"Unable to execute: '{commandTest.command}'")
@@ -37,8 +37,8 @@ class LocalTestRunner(Runner):
                 scriptTest: ScriptTest = test
                 self.logger.info('[%s]: Executing test-script..' % scriptTest.name)
                 try:
-                    result = self.executeSingleBash(scriptTest.script.path)
-                    results.append({ "name": test.name, "returncode": result[0], "output": result[1], "nodes": 'local'})
+                    result = self.executeSingleBash(scriptTest.script.path, scriptTest.name)
+                    results.append(result)
                 except (OSError, FileNotFoundError, PermissionError) as e:
                     self.logger.debug(f"{e}")
                     self.logger.error(f"Unable to execute the script: '{scriptTest.script.path}'")
@@ -46,10 +46,32 @@ class LocalTestRunner(Runner):
 
         return results
 
-    def executeCommand(self, command) -> SingleResult:
-        process = subprocess.run(command.split(' '), stdout=subprocess.PIPE)
-        return (process.returncode, process.stdout.decode('utf-8').rstrip())
+    def collectResults(self, process, testName: str) -> SingleResult:
+        p = process
+        if p.poll() is None:
+            timeout = self.config.settings.timeout
+            if timeout < 0:
+                p.wait()
+            else:
+                try:
+                    p.wait(timeout)
+                except subprocess.TimeoutExpired:
+                    self.logger.warning("Terminating process '%s' (timeout)", testName);
+                    p.terminate()
 
-    def executeSingleBash(self, path) -> SingleResult :
-        result = subprocess.run([path], stdout=subprocess.PIPE)
-        return (result.returncode, result.stdout.decode('utf-8').rstrip())
+        returncode = p.returncode
+        if returncode == None:
+            returncode = 124    # returncode for terminated jobs
+        stdout, stderr = p.communicate()
+
+        result = { "name": testName, "returncode": returncode, "output": stdout.rstrip(), "nodes": 'local'}
+        return result
+
+    def executeCommand(self, command, testName: str) -> SingleResult:
+        process = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return self.collectResults(process, testName)
+
+    def executeSingleBash(self, path, testName: str) -> SingleResult :
+        process = subprocess.Popen([path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return self.collectResults(process, testName)
+

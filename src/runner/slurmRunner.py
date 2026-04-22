@@ -1,8 +1,7 @@
 from logging import Logger
-import subprocess
+import subprocess, time
 
-from psutil import Popen
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 from functools import reduce
 
@@ -98,15 +97,34 @@ class SlurmHelper:
         cmd.append(fullPath)
         #self.logger.debug("cmd: %s", cmd)
 
-        return node, Popen(cmd, stdout=subprocess.PIPE)
+        return node, subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    def collectResults(self, processes, testName):
+    def collectResults(self, processes: List[Tuple[str, subprocess.Popen]], testName: str) -> List[SingleResult]:
         results = []
+        timeout = self.config.settings.timeout
+        startTime = time.monotonic()
 
-        for p in processes:
-            if p[1].poll() is None:
-                p[1].wait(self.config.settings.timeout)
-            singleResult = { "name": testName, "returncode": 0, "output": p[1].communicate()[0].decode('utf-8').rstrip(), "nodes": p[0]}
+        for n,p in processes:
+            if p.poll() is None:
+                if timeout < 0:
+                    p.wait()
+                else:
+                    elapsed = time.monotonic() - startTime
+                    remaining = timeout - elapsed
+                    try:
+                        if remaining <= 0:
+                            raise subprocess.TimeoutExpired(cmd=p.args, timeout=timeout, output=None, stderr=None)
+                        p.wait(remaining)
+                    except subprocess.TimeoutExpired:
+                        self.logger.warning("Terminating process '%s:%s' (timeout)", testName, n);
+                        p.terminate()
+
+            returncode = p.returncode
+            if returncode == None:
+                returncode = 124    # returncode for terminated jobs
+            stdout, stderr = p.communicate()
+
+            singleResult = { "name": testName, "returncode": returncode, "output": stdout.rstrip(), "nodes": n}
             results.append(singleResult)
 
         return results
