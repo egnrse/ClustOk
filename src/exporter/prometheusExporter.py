@@ -1,6 +1,6 @@
 from prometheus_client.core import  REGISTRY
 from prometheus_client import start_http_server, Gauge, Enum
-import prometheus_client
+import prometheus_client, math
 
 from logging import Logger
 
@@ -46,7 +46,11 @@ class PrometheusExporter(Exporter):
                     collectorName = results["testName"] + "_" + condition
                     totalResult = True
 
-                    self.collectors[collectorName].set(evaluation[1])
+                    if evaluation[1] is not None:
+                        self.collectors[collectorName].set(evaluation[1])
+                    else:
+                        self.collectors[collectorName].set(math.nan)
+                        self.logger.debug("prometheus: ignoring %s evaluation value from test '%s' (NaN)", condition, results['testName'])
 
                     if evaluation[0] == True:
                         self.collectors[collectorName + "_success" ].state('good')
@@ -75,7 +79,7 @@ class PrometheusExporter(Exporter):
                 try:
                     self.collectors[collectorName].set(result["output"])
                 except (ValueError, TypeError) as e:
-                    self.collectors[collectorName].set(-1)
+                    self.collectors[collectorName].set(math.nan)
                     if not exportStrings:
                         self.logger.debug(f"{e}")
                         self.logger.info(f"prometheus: ignoring result '{result['output']}' (NaN) from '{results['testName']}'")
