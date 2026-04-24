@@ -1,7 +1,7 @@
-from typing import List
-from interfaces.testresult import TestResult
+from typing import List, Dict
+from interfaces.testresult import TestResult, SingleResult
 
 class Evaluator:
-    def evaluate(self, testResult: List[TestResult]):
+    def evaluate(self, testResults: Dict[str,SingleResult]) -> List[TestResult]:
         """Evaluates testResults"""
         pass

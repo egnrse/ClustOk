@@ -1,13 +1,19 @@
 import logging
 
+from typing import List, Dict
+from interfaces.testresult import TestResult, SingleResult, SingleEval
+
 
 class BaseEvaluator:
+    # what conditions this evaluator supports
+    SUPPORTED = ["max", "min", "difference"]
+    
     def __init__(self, logger: logging.Logger, config):
         self.logger = logger
         self.config = config
         return
 
-    def evaluate(self, testResults):
+    def evaluate(self, testResults: Dict[str,SingleResult]) -> List[TestResult]:
         endResult = True
         endResults = []
         failures = []
@@ -29,55 +35,45 @@ class BaseEvaluator:
                     errors.append('error: [%d]: %s' % (result['returncode'], result['output']))
                     failedNodes.append(result['nodes'])
 
-                #if isinstance(conditions, list):
-                #    outputs = tuple(map(lambda output: output.split('\n'), outputs))
-                #    if len(conditions) != 0 and len(outputs[0]) != len(conditions):
-                #        self.logger.error('Result of test with multiple conditions has to have one output per condition!')
-                #        exit(6)
-
-                #    for i in range(0, len(conditions)-1):
-                #        result &= self.evaluateSubCondition(outputs[i], conditions[i], summary)
-
-                #else:
-
             testEvaluation = {}
             testEvaluation['testName'] = testName
             testEvaluation['detailedResults'] = results
 
             # Check conditions of tests
             if hasattr(test, 'conditions'):
-                outputs = (map(lambda res: res['output'], results))
-                testEvaluation['evaluations'] = self.evaluateSubCondition(outputs, test.conditions)
+                outputs = [res['output'] for res in results]
+                testEvaluation['evaluations'] = self.evaluateSubCondition(outputs, test.conditions, testName)
 
             endResults.append(testEvaluation)
 
         return endResults
 
-    def evaluateSubCondition(self, outputs, conditions):
-        endResults = {}
+    def evaluateSubCondition(self, outputs: List[str], conditions, name) -> Dict[str, SingleEval]:
+        evaluations = {}
 
-        if hasattr(conditions, 'min') or  hasattr(conditions,'max') or hasattr(conditions,'difference'):
+        if any(hasattr(conditions, cond) for cond in self.SUPPORTED):
             try:
-                numberOutputs = *map(lambda output: float(output), outputs),
-
-                if hasattr(conditions, 'min'):
-                    endResults['min'] = self.evaluateMin(numberOutputs, conditions.min)
-
-                if hasattr(conditions,'max'):
-                    endResults['max'] = self.evaluateMax(numberOutputs, conditions.max)
-
-                
-                if hasattr(conditions,'difference'):
-                    endResults['difference'] = self.evaluateDifference(numberOutputs, conditions.difference)
-
+                numberOutputs = [float(o) for o in outputs]
             except Exception as err:
-                self.logger.error('Results of tests have to be parseable as number if numeric condition is specified!')
-                self.logger.error(err)
-                exit(5)
-        
-        return endResults
+                self.logger.debug(err)
+                self.logger.error("Result of test '%s' are not parseable as number, but numeric condition is specified!", name)
+                val = {}
+                error = f"Result not parseable as a number: '{",".join(outputs)}'"
+                for cond in self.SUPPORTED:
+                    if hasattr(conditions, cond):
+                        val[cond] = (False, None, getattr(conditions, cond), error)
+                return val
 
-    def evaluateMin(self, results, minThreshold):
+            if hasattr(conditions, 'min'):
+                evaluations['min'] = self.evaluateMin(numberOutputs, conditions.min)
+            if hasattr(conditions,'max'):
+                evaluations['max'] = self.evaluateMax(numberOutputs, conditions.max)
+            if hasattr(conditions,'difference'):
+                evaluations['difference'] = self.evaluateDifference(numberOutputs, conditions.difference)
+        
+        return evaluations
+
+    def evaluateMin(self, results: List[float], minThreshold: float) -> SingleEval:
         min_val = min(results)
 
         self.logger.debug("Minimum result is %f out of required %f", min_val, minThreshold)
@@ -88,7 +84,7 @@ class BaseEvaluator:
 
         return (True, min_val, minThreshold, None)
 
-    def evaluateMax(self, results, maxThreshold):
+    def evaluateMax(self, results: List[float], maxThreshold: float) -> SingleEval:
         max_val = max(results)
 
         self.logger.debug("Maximum result is %f of allowed %f", max_val, maxThreshold)
@@ -99,7 +95,7 @@ class BaseEvaluator:
         
         return (True, max_val, maxThreshold, None)
 
-    def evaluateDifference(self, results,  maxDifference):
+    def evaluateDifference(self, results: List[float],  maxDifference: float) -> SingleEval:
         max_val = max(results)
         min_val = min(results)
         difference = max_val - min_val
@@ -111,5 +107,3 @@ class BaseEvaluator:
             return (False, difference, maxDifference, error)
 
         return (True, difference, maxDifference, None)
-
-    
