@@ -1,12 +1,12 @@
-
 from yaml import safe_load
-from logging import Logger
+from schema import SchemaError
 
+from logging import Logger
 from utils.config.config import Config, DictToConf
+
 from utils.config.configSchema import config_schema
 from utils.config.defaults import DEFAULTS
 
-from schema import SchemaError
 
 class ConfigManager(Config):
     def __init__(self, logger: Logger, config):
@@ -45,3 +45,5 @@ class ConfigManager(Config):
             self.logger.debug(se.autos)
             #self.logger.debug(se.errors)
             exit(2)
+
+# vim: set et ts=4 sw=4 sts=4:

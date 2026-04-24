@@ -49,3 +49,11 @@ pip install -U .[test]
 pytest
 ```
 
+-----
+
+## Guidelines
+- 4 spaces intendation
+- import statements at the top are grouped by: 
+  - official libs
+  - typing libs
+  - internal libs

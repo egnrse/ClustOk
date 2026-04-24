@@ -1,7 +1,7 @@
-from logging import INFO, DEBUG, CRITICAL, ERROR, WARN
 from typing import List, Dict
-
+from logging import INFO, DEBUG, CRITICAL, ERROR, WARN
 from interfaces.test import Test
+
 
 class OutputSettings:
     fileName: str
@@ -56,3 +56,4 @@ class DictToConf(Config):
 
         return res
 
+# vim: set et ts=4 sw=4 sts=4:

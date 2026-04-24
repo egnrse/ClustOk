@@ -1,12 +1,11 @@
+import prometheus_client, math
 from prometheus_client.core import  REGISTRY
 from prometheus_client import start_http_server, Gauge, Enum
-import prometheus_client, math
 
 from logging import Logger
-
 from interfaces.exporter import Exporter
-
 from utils.config.config import Config
+
 
 REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
 REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
@@ -99,3 +98,5 @@ class PrometheusExporter(Exporter):
             exit(1)
 
         return exporter
+
+# vim: set et ts=4 sw=4 sts=4:

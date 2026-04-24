@@ -1,5 +1,6 @@
 from schema import Schema, SchemaError, Or, Optional
 
+ 
 nodeList_schema = Schema({
     object: {
         "nodeNames": str
@@ -104,3 +105,5 @@ config_schema = Schema({
     "nodeLists": nodeList_schema,
     "tests": [ test_schema ],
 })
+
+# vim: set et ts=4 sw=4 sts=4:

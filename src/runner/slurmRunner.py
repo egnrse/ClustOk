@@ -1,14 +1,13 @@
-from logging import Logger
 import subprocess, time
-
-from typing import List, Tuple
 from pathlib import Path
 from functools import reduce
 
+from typing import List, Tuple
+from logging import Logger
 from interfaces.runner import Runner
-from utils.config.config import Config
 from interfaces.test import SlurmScriptPairTest, SlurmScriptTest, SlurmPairScript, SlurmScript
 from interfaces.testresult import SingleResult
+from utils.config.config import Config
 
 
 class SlurmTestRunner(Runner):
@@ -183,4 +182,4 @@ class SlurmHelper:
         
         return reduce(lambda a, b: getattr(self.config.nodeLists, lists[a]).nodeNames + ',' + getattr(self.config.nodeLists, lists[b]).nodeNames, lists)
 
-
+# vim: set et ts=4 sw=4 sts=4:

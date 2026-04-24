@@ -1,5 +1,6 @@
 from typing import Dict    
 
+
 class Test:
     noFail: bool
     maxDifference: int
@@ -28,3 +29,4 @@ class SlurmScriptPairTest(Test):
 class SlurmScriptTest(Test):
     slurmScript: SlurmScript
 
+# vim: set et ts=4 sw=4 sts=4:

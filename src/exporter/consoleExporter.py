@@ -1,10 +1,7 @@
-from io import TextIOWrapper
-from interfaces.exporter import Exporter
-
-from utils.config.config import OutputSettings
 from datetime import datetime
 
-import json
+from interfaces.exporter import Exporter
+from utils.config.config import OutputSettings
 
 
 class ConsoleExporter(Exporter):
@@ -43,3 +40,5 @@ class ConsoleExporter(Exporter):
     def init(settings: OutputSettings):
         exporter = ConsoleExporter()
         return exporter   
+
+# vim: set et ts=4 sw=4 sts=4:

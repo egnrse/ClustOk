@@ -1,11 +1,10 @@
-from io import TextIOWrapper
-from interfaces.exporter import Exporter
-from logging import Logger
-
-from utils.config.config import OutputSettings
+import json
 from datetime import datetime
 
-import json
+from logging import Logger
+from interfaces.exporter import Exporter
+from utils.config.config import OutputSettings
+
 
 
 class FileExporter(Exporter):
@@ -80,3 +79,5 @@ class FileExporter(Exporter):
         exporter.format = outputSettings.format
         exporter.logger = logger
         return exporter   
+
+# vim: set et ts=4 sw=4 sts=4:

@@ -107,3 +107,5 @@ class BaseEvaluator:
             return (False, difference, maxDifference, error)
 
         return (True, difference, maxDifference, None)
+
+# vim: set et ts=4 sw=4 sts=4:

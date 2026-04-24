@@ -1,16 +1,15 @@
-import logging
 import subprocess
 
+from typing import List
+from logging import Logger
 from interfaces.test import CommandTest, ScriptTest
 from interfaces.testresult import SingleResult
 from interfaces.runner import Runner
-
 from utils.config.config import Config
 
-from typing import List
 
 class LocalTestRunner(Runner):
-    def __init__(self, logger: logging.Logger, config: Config):
+    def __init__(self, logger: Logger, config: Config):
         self.logger = logger
         self.config = config
         return
@@ -75,3 +74,4 @@ class LocalTestRunner(Runner):
         process = subprocess.Popen([path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         return self.collectResults(process, testName)
 
+# vim: set et ts=4 sw=4 sts=4:
