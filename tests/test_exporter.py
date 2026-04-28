@@ -4,6 +4,8 @@ import pytest, logging, json
 import requests
 from prometheus_client.parser import text_string_to_metric_families
 
+from interfaces.testresult import SingleResult
+
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
 from exporter.fileExporter import FileExporter
@@ -12,10 +14,16 @@ from exporter.consoleExporter import ConsoleExporter
 
 
 input = [
-    {'detailedResults': [{'name': 'Test min/max', 'nodes': 'local', 'output': '6', 'returncode': 0}], 'evaluations': {'max': (True, 6.0, 7, None), 'min': (True, 6.0, 5, None)}, 'testName': 'Test min/max'},
-    {'detailedResults': [{'name': 'StringTest', 'nodes': 'local', 'output': 'a test string\nline2', 'returncode': 0}], 'testName': 'StringTest'}
+    {
+        "detailedResults": [SingleResult(name="Test min/max", nodes="local", output="6", returncode=0)],
+        "evaluations": {"max": (True, 6.0, 7, None), "min": (True, 6.0, 5, None)},
+        "testName": "Test min/max"
+    },
+    {
+        "detailedResults": [SingleResult(name="StringTest", nodes="local", output="a test string\nline2", returncode=0)],
+        "testName": "StringTest"
+    }
 ]
-
 
 class TestConsoleExporter:
     def test_output(self, capsys):

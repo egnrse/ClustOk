@@ -2,7 +2,7 @@ import subprocess, time
 from pathlib import Path
 from functools import reduce
 
-from typing import List, Tuple
+from typing import List, Tuple, Set, cast
 from logging import Logger
 from interfaces.runner import Runner
 from interfaces.test import SlurmScriptPairTest, SlurmScriptTest, SlurmPairScript, SlurmScript
@@ -33,16 +33,14 @@ class SlurmTestRunner(Runner):
         results = []
 
         for test in self.config.tests:
-            summary = {}          
-            
             if hasattr(test, 'slurmScript'):
-                slurmScriptTest: SlurmScriptTest = test
+                slurmScriptTest = cast(SlurmScriptTest, test)
                 self.logger.info('[%s]: Executing slurmScript-test..' % slurmScriptTest.name)
                 result = self.slurmHelper.executeSlurmScript(slurmScriptTest.slurmScript, test.name)
                 results.extend(result)
 
             elif hasattr(test, 'slurmPairScript'):
-                slurmPairScript: SlurmScriptPairTest = test
+                slurmPairScript: SlurmScriptPairTest =  cast(SlurmScriptPairTest, test)
                 self.logger.info('[%s]: Executing slurm test-script in pairs..' % slurmPairScript.name)
                 result = self.slurmHelper.executeSlurmScriptInPairs(slurmPairScript.slurmPairScript, test.name)
                 results.extend(result)
@@ -93,12 +91,12 @@ class SlurmHelper:
             cmd.extend(test.options)
 
         fullPath = Path(test.path).resolve()
-        cmd.append(fullPath)
+        cmd.append(str(fullPath))
         #self.logger.debug("cmd: %s", cmd)
 
         return node, subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    def collectResults(self, processes: List[Tuple[str, subprocess.Popen]], testName: str) -> List[SingleResult]:
+    def collectResults(self, processes: Set[Tuple[str, subprocess.Popen]], testName: str) -> List[SingleResult]:
         results = []
         timeout = self.config.settings.timeout
         startTime = time.monotonic()
@@ -123,7 +121,7 @@ class SlurmHelper:
                 returncode = 124    # returncode for terminated jobs
             stdout, stderr = p.communicate()
 
-            singleResult = { "name": testName, "returncode": returncode, "output": stdout.rstrip(), "nodes": n}
+            singleResult = SingleResult(name=testName, returncode=returncode, output=stdout.rstrip(), nodes=n)
             results.append(singleResult)
 
         return results

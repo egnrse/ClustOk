@@ -2,12 +2,14 @@
 import pytest, logging
 import copy
 
+from interfaces.testresult import SingleResult
+
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
 from evaluator.baseEvaluator import BaseEvaluator
 
 eval_conf = {'tests': [{'name': 'Test min/max', 'descr': '', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
-eval_input1 = {'Test min/max': [{'name': 'Test min/max', 'returncode': 0, 'output': '6', 'nodes': 'local'}]}
+eval_input1 = {"Test min/max": [SingleResult(name="Test min/max", returncode=0, output="6", nodes="local")]}
 
 class TestBaseEvaluater:
     # set 'output' values in the input structure
@@ -21,6 +23,9 @@ class TestBaseEvaluater:
                     out[k] = self.setInput(v, value)
         elif isinstance(out, list):
             out = [self.setInput(item, value) for item in out]
+        elif isinstance(out, SingleResult):
+            if hasattr(out, "output"):
+                out.output = value
         return out
 
     def test_detailedResults(self):
@@ -32,10 +37,8 @@ class TestBaseEvaluater:
         result = ev.evaluate(eval_input1)
         assert "testName" in result[0]
         assert "detailedResults" in result[0]
-        assert "name" in result[0]['detailedResults'][0]
-        assert "nodes" in result[0]['detailedResults'][0]
-        assert "output" in result[0]['detailedResults'][0]
-        assert "returncode" in result[0]['detailedResults'][0]
+        assert len(result[0]['detailedResults']) > 0
+        assert isinstance(result[0]['detailedResults'][0], SingleResult)
 
     def test_Min1(self, capsys):
         logger = CustomLogger('[ClustOk]')

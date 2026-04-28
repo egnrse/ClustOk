@@ -33,10 +33,11 @@ class FileExporter(Exporter):
         jsoninfo = {}
         jsoninfo["testresults"] = testResults
         jsoninfo["timestamp"] = datetime.now().isoformat()
-        
+        jsonOut = json.dumps(jsoninfo, indent=4, default=lambda o: o.__dict__)
+
         try:
             with open(fileName + ".json", "w") as outputFile:
-                outputFile.write(json.dumps(jsoninfo, indent=4))
+                outputFile.write(jsonOut)
         except (OSError, PermissionError) as e:
             self.logger.debug(f"{e}")
             self.logger.error(f"Cannot open output file for writing: '{fileName}.json'")
@@ -64,9 +65,9 @@ class FileExporter(Exporter):
 
                     # Iterate every result
                     for result in results['detailedResults']:
-                        outputFile.write(result["nodes"] + "\t\t\t\t\t\t\t")
-                        outputFile.write(str(result["returncode"]) + "\t\t\t\t")
-                        outputFile.write(result["output"])
+                        outputFile.write(result.nodes + "\t\t\t\t\t\t\t")
+                        outputFile.write(str(result.returncode) + "\t\t\t\t")
+                        outputFile.write(result.output)
                         outputFile.write('\n')
         except (OSError, PermissionError) as e:
             self.logger.debug(f"{e}")

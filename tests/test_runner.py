@@ -1,6 +1,8 @@
 # testing runner
 import pytest, logging
 
+from interfaces.testresult import SingleResult
+
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
 from runner.slurmRunner import SlurmTestRunner
@@ -52,28 +54,48 @@ class TestSlurmRunner:
     def test_slurmScript(self, capsys, fp):
         sr = self.prepare(fp)
         result = sr.execute()
-        expected = {
-            "name": "SlurmScript",
-            "nodes": "testnode04",
-            "output": "test output",
-            "returncode": 0,
-        }
+        expected = SingleResult(
+            name="SlurmScript",
+            nodes="testnode04",
+            output="test output",
+            returncode=0
+        )
         assert expected in result
 
     def test_slurmPairScript(self, capsys, fp):
         sr = self.prepare(fp)
         result = sr.execute()
         expected = [
-            {'name': 'SlurmPairScript', 'returncode': 0, 'output': 'test output', 'nodes': 'testnode03,testnode07,'},
-            {'name': 'SlurmPairScript', 'returncode': 0, 'output': 'test output', 'nodes': 'testnode09,testnode07,'},
-            {'name': 'SlurmPairScript', 'returncode': 0, 'output': 'test output', 'nodes': 'testnode01,testnode04,'},
-            {'name': 'SlurmPairScript', 'returncode': 0, 'output': 'test output', 'nodes': 'testnode02,testnode05,'}
+            SingleResult(
+                name="SlurmPairScript",
+                returncode=0,
+                output="test output",
+                nodes="testnode03,testnode07,"
+            ),
+            SingleResult(
+                name="SlurmPairScript",
+                returncode=0,
+                output="test output",
+                nodes="testnode09,testnode07,"
+            ),
+            SingleResult(
+                name="SlurmPairScript",
+                returncode=0,
+                output="test output",
+                nodes="testnode01,testnode04,"
+            ),
+            SingleResult(
+                name="SlurmPairScript",
+                returncode=0,
+                output="test output",
+                nodes="testnode02,testnode05,"
+            )
         ]
         # the node combinations are not stable
         for exp in expected:
-            assert any(exp['name'] == act['name'] for act in result)
-            assert any(exp['output'] == act['output'] for act in result)
-            assert any(exp['returncode'] == act['returncode'] for act in result)
+            assert any(exp.name == act.name for act in result)
+            assert any(exp.output == act.output for act in result)
+            assert any(exp.returncode == act.returncode for act in result)
 
 
 local_conf = {'tests': [{'name': 'Command Test', 'descr': 'a description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'script description', 'script': {'path': './testpath/script.sh'}}]}
@@ -139,12 +161,12 @@ class TestLocalRunner:
         lr = LocalTestRunner(logger, config)
 
         result = lr.execute()
-        expected = {
-            'name': 'Command Test',
-            'nodes': 'local',
-            'output': '6',
-            'returncode': 0
-        }
+        expected = SingleResult(
+            name='Command Test',
+            nodes='local',
+            output='6',
+            returncode=0
+        )
         assert expected in result
 
     def test_localScript(self, capsys, fp):
@@ -156,12 +178,12 @@ class TestLocalRunner:
         lr = LocalTestRunner(logger, config)
 
         result = lr.execute()
-        expected = {
-            'name': 'Script Test',
-            'nodes': 'local',
-            'output': 'testtext\nline2',
-            'returncode': 0
-        }
+        expected = SingleResult(
+            name='Script Test',
+            nodes='local',
+            output='testtext\nline2',
+            returncode=0
+        )
         assert expected in result
 
 

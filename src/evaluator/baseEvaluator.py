@@ -30,10 +30,10 @@ class BaseEvaluator:
             # Check every returncode to be 0
             for result in results:
                 errors = []
-                if result['returncode'] != 0:
+                if result.returncode != 0:
                     endResult = False
-                    errors.append('error: [%d]: %s' % (result['returncode'], result['output']))
-                    failedNodes.append(result['nodes'])
+                    errors.append('error: [%d]: %s' % (result.returncode, result.output))
+                    failedNodes.append(result.nodes)
 
             testEvaluation = {}
             testEvaluation['testName'] = testName
@@ -41,7 +41,7 @@ class BaseEvaluator:
 
             # Check conditions of tests
             if hasattr(test, 'conditions'):
-                outputs = [res['output'] for res in results]
+                outputs = [res.output for res in results]
                 testEvaluation['evaluations'] = self.evaluateSubCondition(outputs, test.conditions, testName)
 
             endResults.append(testEvaluation)

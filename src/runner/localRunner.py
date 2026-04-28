@@ -1,6 +1,6 @@
 import subprocess
 
-from typing import List
+from typing import List, cast
 from logging import Logger
 from interfaces.test import CommandTest, ScriptTest
 from interfaces.testresult import SingleResult
@@ -19,10 +19,8 @@ class LocalTestRunner(Runner):
         results = []
 
         for test in self.config.tests:
-            summary = {}
-
             if hasattr(test, 'command'):
-                commandTest: CommandTest = test
+                commandTest: CommandTest = cast(CommandTest, test)
                 self.logger.info('[%s]: Executing command-test..' % commandTest.name)
                 try:
                     result = self.executeCommand(commandTest.command, commandTest.name)
@@ -33,7 +31,7 @@ class LocalTestRunner(Runner):
                     exit(1)
 
             elif hasattr(test, 'script'):
-                scriptTest: ScriptTest = test
+                scriptTest: ScriptTest = cast(ScriptTest, test)
                 self.logger.info('[%s]: Executing test-script..' % scriptTest.name)
                 try:
                     result = self.executeSingleBash(scriptTest.script.path, scriptTest.name)
@@ -63,7 +61,7 @@ class LocalTestRunner(Runner):
             returncode = 124    # returncode for terminated jobs
         stdout, stderr = p.communicate()
 
-        result = { "name": testName, "returncode": returncode, "output": stdout.rstrip(), "nodes": 'local'}
+        result = SingleResult(name=testName, returncode=returncode, output=stdout.rstrip(), nodes='local')
         return result
 
     def executeCommand(self, command, testName: str) -> SingleResult:

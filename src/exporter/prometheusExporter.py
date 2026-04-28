@@ -66,15 +66,15 @@ class PrometheusExporter(Exporter):
         
 
             for result in results['detailedResults']:
-                collectorName = results["testName"] + result["nodes"].replace(',', "")
+                collectorName = results["testName"] + result.nodes.replace(',', "")
                 
                 if collectorName not in self.gauges:
-                    self.gauges[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"])
+                    self.gauges[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result.nodes)
                 if exportStrings:
-                    collectorNameStr = results["testName"] + result["nodes"].replace(',', "") + "_str"
+                    collectorNameStr = results["testName"] + result.nodes.replace(',', "") + "_str"
                     if collectorNameStr not in self.gauges:
-                        self.gauges[collectorNameStr] = Gauge(collectorNameStr, "Detailed results for test '" + results["testName"] + "' for nodes " +  result["nodes"] + " as a String", ["output"])
-                    self.gauges[collectorNameStr].labels(output=str(result["output"])).set(1)
+                        self.gauges[collectorNameStr] = Gauge(collectorNameStr, "Detailed results for test '" + results["testName"] + "' for nodes " +  result.nodes + " as a String", ["output"])
+                    self.gauges[collectorNameStr].labels(output=str(result.output)).set(1)
 
                 try:
                     self.gauges[collectorName].set(result["output"])

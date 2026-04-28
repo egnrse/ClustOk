@@ -62,13 +62,13 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
 
             # Collect results
             for singleResult in result:
-                if singleResult["name"] not in results:
-                    results[singleResult["name"]] = []
+                if singleResult.name not in results:
+                    results[singleResult.name] = []
 
-                results[singleResult["name"]].append(singleResult)
+                results[singleResult.name].append(singleResult)
             
         for _,resultList in results.items():
-            resultList.sort(key=lambda result: result["nodes"])
+            resultList.sort(key=lambda result: result.nodes)
 
         # Evaluate results
         for evaluator in evaluators:

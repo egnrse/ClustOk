@@ -2,31 +2,31 @@ from typing import Dict
 
 
 class Test:
+    name: str
+    descr: str
+    conditions: Dict[str, int]
     noFail: bool
     maxDifference: int
-    descr: str
-    name: str
-    conditions: Dict[str, int]
-
-class ScriptTest(Test):
-    path: str
 
 class CommandTest(Test):
     command: str
 
-class SlurmScript(Test):
+class Script:
+    path: str
+class ScriptTest(Test):
+    script: Script
+
+class SlurmScript:
     path: str
     nodeLists: str
+class SlurmScriptTest(Test):
+    slurmScript: SlurmScript
 
-class SlurmPairScript(Test):
+class SlurmPairScript:
     pairSize: int
     path: str
     nodeLists: str
-
 class SlurmScriptPairTest(Test):
     slurmPairScript: SlurmPairScript
-
-class SlurmScriptTest(Test):
-    slurmScript: SlurmScript
 
 # vim: set et ts=4 sw=4 sts=4:

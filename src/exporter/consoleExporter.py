@@ -30,9 +30,9 @@ class ConsoleExporter(Exporter):
 
             # Iterate every result
             for result in results['detailedResults']:
-                print(result["nodes"], end=",")
-                print(str(result["returncode"]), end=",")
-                print(result["output"])     
+                print(result.nodes, end=",")
+                print(str(result.returncode), end=",")
+                print(result.output)
 
     def destroy(self):
         pass     
