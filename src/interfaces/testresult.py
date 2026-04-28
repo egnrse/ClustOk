@@ -17,6 +17,6 @@ class SingleResult():
 class TestResult():
     testName: str
     detailedResults: List[SingleResult]
-    evaluations: Dict[str, SingleEval]
+    evaluations: Optional[Dict[str, SingleEval]] = None
 
 # vim: set et ts=4 sw=4 sts=4:

@@ -2,7 +2,7 @@
 import pytest, logging
 import copy
 
-from interfaces.testresult import SingleResult
+from interfaces.testresult import SingleResult, TestResult
 
 from utils.logger.customLogger import CustomLogger
 from utils.config.config import DictToConf
@@ -35,10 +35,10 @@ class TestBaseEvaluater:
         ev = BaseEvaluator(logger, config)
 
         result = ev.evaluate(eval_input1)
-        assert "testName" in result[0]
-        assert "detailedResults" in result[0]
-        assert len(result[0]['detailedResults']) > 0
-        assert isinstance(result[0]['detailedResults'][0], SingleResult)
+        assert isinstance(result[0], TestResult)
+        #assert "detailedResults" in result[0]
+        assert len(result[0].detailedResults) > 0
+        assert isinstance(result[0].detailedResults[0], SingleResult)
 
     def test_Min1(self, capsys):
         logger = CustomLogger('[ClustOk]')
@@ -48,9 +48,9 @@ class TestBaseEvaluater:
 
         result = ev.evaluate(eval_input1)
         expected = (True, 6.0, 5, None)
-        assert "evaluations" in result[0]
-        assert "min" in result[0]['evaluations']
-        assert result[0]['evaluations']['min'] == expected
+        assert result[0].evaluations is not None
+        assert "min" in result[0].evaluations
+        assert result[0].evaluations['min'] == expected
 
         captured = capsys.readouterr()
         assert "DEBUG - " in captured.err
@@ -66,9 +66,9 @@ class TestBaseEvaluater:
         input = self.setInput(eval_input1, 5)
         result = ev.evaluate(input)
         expected = (True, 5.0, 5, None)
-        assert "evaluations" in result[0]
-        assert "min" in result[0]['evaluations']
-        assert result[0]['evaluations']['min'] == expected
+        assert result[0].evaluations is not None
+        assert "min" in result[0].evaluations
+        assert result[0].evaluations['min'] == expected
 
     def test_Min3(self, capsys):
         logger = CustomLogger('[ClustOk]')
@@ -79,9 +79,9 @@ class TestBaseEvaluater:
         input = self.setInput(eval_input1, 4)
         result = ev.evaluate(input)
         expected = (False, 4.0, 5, 'Min value threshold violated. 4.0 instead of 5')
-        assert "evaluations" in result[0]
-        assert "min" in result[0]['evaluations']
-        assert result[0]['evaluations']['min'] == expected
+        assert result[0].evaluations is not None
+        assert "min" in result[0].evaluations
+        assert result[0].evaluations['min'] == expected
 
         captured = capsys.readouterr()
         assert "WARNING - " in captured.err
@@ -97,9 +97,9 @@ class TestBaseEvaluater:
         input = self.setInput(eval_input1, 10230)
         result = ev.evaluate(input)
         expected = (False, 10230.0, 7, 'Max value threshold violated. 10230.0 instead of 7')
-        assert "evaluations" in result[0]
-        assert "max" in result[0]['evaluations']
-        assert result[0]['evaluations']['max'] == expected
+        assert result[0].evaluations is not None
+        assert "max" in result[0].evaluations
+        assert result[0].evaluations['max'] == expected
 
         captured = capsys.readouterr()
         assert "DEBUG - " in captured.err
@@ -117,9 +117,9 @@ class TestBaseEvaluater:
         input = self.setInput(eval_input1, -10)
         result = ev.evaluate(input)
         expected = (True, -10, 7, None)
-        assert "evaluations" in result[0]
-        assert "max" in result[0]['evaluations']
-        assert result[0]['evaluations']['max'] == expected
+        assert result[0].evaluations is not None
+        assert "max" in result[0].evaluations
+        assert result[0].evaluations['max'] == expected
 
         captured = capsys.readouterr()
         assert "DEBUG - " in captured.err

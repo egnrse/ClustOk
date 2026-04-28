@@ -41,16 +41,16 @@ class PrometheusExporter(Exporter):
             exportStrings = False
 
         for results in testResults:
-            if 'evaluations' in results:
-                for condition, evaluation in results['evaluations'].items():
-                    collectorName = results["testName"] + "_" + condition
+            if results.evaluations is not None:
+                for condition, evaluation in results.evaluations.items():
+                    collectorName = results.testName + "_" + condition
                     totalResult = True
 
                     if evaluation[1] is not None:
                         self.gauges[collectorName].set(evaluation[1])
                     else:
                         self.gauges[collectorName].set(math.nan)
-                        self.logger.debug("prometheus: ignoring %s evaluation value from test '%s' (NaN)", condition, results['testName'])
+                        self.logger.debug("prometheus: ignoring %s evaluation value from test '%s' (NaN)", condition, results.testName)
 
                     if evaluation[0] == True:
                         self.enums[collectorName + "_success" ].state('good')
@@ -59,21 +59,21 @@ class PrometheusExporter(Exporter):
                         self.enums[collectorName + "_success" ].state('faulty')
 
                 if (totalResult):
-                    self.enums[results["testName"]].state('good')
+                    self.enums[results.testName].state('good')
                 else:
-                    self.enums[results["testName"]].state('faulty')
+                    self.enums[results.testName].state('faulty')
 
         
 
-            for result in results['detailedResults']:
-                collectorName = results["testName"] + result.nodes.replace(',', "")
+            for result in results.detailedResults:
+                collectorName = results.testName + result.nodes.replace(',', "")
                 
                 if collectorName not in self.gauges:
-                    self.gauges[collectorName] = Gauge(collectorName, "Detailed results for test '" + results["testName"] + "' for nodes " +  result.nodes)
+                    self.gauges[collectorName] = Gauge(collectorName, "Detailed results for test '" + results.testName + "' for nodes " +  result.nodes)
                 if exportStrings:
-                    collectorNameStr = results["testName"] + result.nodes.replace(',', "") + "_str"
+                    collectorNameStr = results.testName + result.nodes.replace(',', "") + "_str"
                     if collectorNameStr not in self.gauges:
-                        self.gauges[collectorNameStr] = Gauge(collectorNameStr, "Detailed results for test '" + results["testName"] + "' for nodes " +  result.nodes + " as a String", ["output"])
+                        self.gauges[collectorNameStr] = Gauge(collectorNameStr, "Detailed results for test '" + results.testName + "' for nodes " +  result.nodes + " as a String", ["output"])
                     self.gauges[collectorNameStr].labels(output=str(result.output)).set(1)
 
                 try:
@@ -82,7 +82,7 @@ class PrometheusExporter(Exporter):
                     self.gauges[collectorName].set(math.nan)
                     if not exportStrings:
                         self.logger.debug(f"{e}")
-                        self.logger.info(f"prometheus: ignoring result '{result['output']}' (NaN) from '{results['testName']}'")
+                        self.logger.info(f"prometheus: ignoring result '{result['output']}' (NaN) from '{results.testName}'")
    
 
     @staticmethod

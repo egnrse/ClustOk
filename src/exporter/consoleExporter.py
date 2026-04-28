@@ -16,11 +16,11 @@ class ConsoleExporter(Exporter):
         # Iterate every testName
         for results in testResults:
             print("\n=============================================")
-            print(results['testName'] + ":\n")
+            print(results.testName + ":\n")
 
-            if 'evaluations' in results:
+            if results.evaluations is not None:
                 print('Evaluation:')
-                for condition, evaluation in results['evaluations'].items():
+                for condition, evaluation in results.evaluations.items():
                     print(condition + ":" + "\t" + str(evaluation[0]), end="")
                     print("\t\t" + str(evaluation[1]) + " of " +  str([evaluation[2]]) + " needed")
                 print("\n")
@@ -29,7 +29,7 @@ class ConsoleExporter(Exporter):
             print("NODE(s),CODE,OUTPUT")
 
             # Iterate every result
-            for result in results['detailedResults']:
+            for result in results.detailedResults:
                 print(result.nodes, end=",")
                 print(str(result.returncode), end=",")
                 print(result.output)

@@ -13,10 +13,9 @@ class BaseEvaluator:
         self.config = config
         return
 
-    def evaluate(self, testResults: Dict[str,SingleResult]) -> List[TestResult]:
+    def evaluate(self, testResults: Dict[str,List[SingleResult]]) -> List[TestResult]:
         endResult = True
         endResults = []
-        failures = []
 
         # Iterate every testName
         for testName, results in testResults.items():
@@ -24,7 +23,7 @@ class BaseEvaluator:
             test = next((x for x in self.config.tests if x.name == testName), None)
 
             if test is None:
-                self.logger.warn('There are results for a not specified test. Exiting evaluation for this test: %s' % testname)
+                self.logger.warn('There are results for a not specified test. Exiting evaluation for this test: %s' % testName)
                 continue
 
             # Check every returncode to be 0
@@ -35,21 +34,22 @@ class BaseEvaluator:
                     errors.append('error: [%d]: %s' % (result.returncode, result.output))
                     failedNodes.append(result.nodes)
 
-            testEvaluation = {}
-            testEvaluation['testName'] = testName
-            testEvaluation['detailedResults'] = results
+            testEvaluation = TestResult(
+                testName=testName,
+                detailedResults=results,
+            )
 
             # Check conditions of tests
             if hasattr(test, 'conditions'):
                 outputs = [res.output for res in results]
-                testEvaluation['evaluations'] = self.evaluateSubCondition(outputs, test.conditions, testName)
+                testEvaluation.evaluations = self.evaluateSubCondition(outputs, test.conditions, testName)
 
             endResults.append(testEvaluation)
 
         return endResults
 
     def evaluateSubCondition(self, outputs: List[str], conditions, name) -> Dict[str, SingleEval]:
-        evaluations = {}
+        evaluations: dict[str, SingleEval] = {}
 
         if any(hasattr(conditions, cond) for cond in self.SUPPORTED):
             try:
@@ -57,11 +57,11 @@ class BaseEvaluator:
             except Exception as err:
                 self.logger.debug(err)
                 self.logger.error("Result of test '%s' are not parseable as number, but numeric condition is specified!", name)
-                val = {}
+                val: dict[str, SingleEval] = {}
                 error = f"Result not parseable as a number: '{",".join(outputs)}'"
                 for cond in self.SUPPORTED:
                     if hasattr(conditions, cond):
-                        val[cond] = (False, None, getattr(conditions, cond), error)
+                        val[cond] = (False, None, float(getattr(conditions, cond)), error)
                 return val
 
             if hasattr(conditions, 'min'):

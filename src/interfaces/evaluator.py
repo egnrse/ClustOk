@@ -5,6 +5,6 @@ from interfaces.testresult import TestResult, SingleResult
 class Evaluator:
     def evaluate(self, testResults: Dict[str,SingleResult]) -> List[TestResult]:
         """Evaluates testResults"""
-        pass
+        raise NotImplementedError
 
 # vim: set et ts=4 sw=4 sts=4:
