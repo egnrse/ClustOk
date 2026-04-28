@@ -5,8 +5,6 @@ class Test:
     name: str
     descr: str
     conditions: Dict[str, int]
-    noFail: bool
-    maxDifference: int
 
 class CommandTest(Test):
     command: str
