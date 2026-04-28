@@ -27,7 +27,7 @@ mypy:
     stage: type-check
     script:
     # run type checking
-    - mypy . --junit-xml mypy-report.xml --junit-format per_file
+    - mypy --junit-xml mypy-report.xml --junit-format per_file
     artifacts:
         when: always
         reports:

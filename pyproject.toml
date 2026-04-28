@@ -58,3 +58,10 @@ test = [
 # type checking
 [tool.mypy]
 ignore_missing_imports = true
+files = ["src"]
+exclude = [
+	"build/",
+	"dist/",
+	".*/build/.*",
+	".*/dist/.*",
+]
