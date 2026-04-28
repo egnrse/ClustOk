@@ -21,7 +21,7 @@ class TestConsoleExporter:
     def test_output(self, capsys):
         logger = CustomLogger('[ClustOk]')
         logger.setLevel(logging.DEBUG)
-        e = ConsoleExporter.init({})
+        e = ConsoleExporter.init({},{})
         e.update(input)
         e.destroy()
 

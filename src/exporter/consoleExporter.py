@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from logging import Logger
 from interfaces.exporter import Exporter
 from utils.config.config import OutputSettings
 
@@ -37,7 +38,7 @@ class ConsoleExporter(Exporter):
         pass     
 
     @staticmethod
-    def init(settings: OutputSettings):
+    def init(logger: Logger, settings: OutputSettings):
         exporter = ConsoleExporter()
         return exporter   
 

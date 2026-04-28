@@ -3,16 +3,18 @@ from datetime import datetime
 
 from logging import Logger
 from interfaces.exporter import Exporter
-from utils.config.config import OutputSettings
+from utils.config.config import FileSettings
 
 
 
 class FileExporter(Exporter):
-    def __init__(self):
-        self.format: str
-        self.fileName: str
-        self.dir: str
+    def __init__(self, logger: Logger, output: FileSettings):
+        self.logger = logger
+        self.dir = output.dir
+        self.fileName = output.fileName
+        self.format = output.format
         self.rotate: str
+        return
 
     def update(self, testResults):
         fileName = datetime.now().strftime(self.fileName)
@@ -71,13 +73,8 @@ class FileExporter(Exporter):
             self.logger.error(f"Cannot open output file for writing: '{fileName}.txt'")
             exit(1)
 
-    @staticmethod
-    def init(logger: Logger, outputSettings: OutputSettings):
-        exporter = FileExporter()
-        exporter.dir = outputSettings.dir
-        exporter.fileName = outputSettings.fileName
-        exporter.format = outputSettings.format
-        exporter.logger = logger
-        return exporter   
+    @classmethod
+    def init(cls, logger: Logger, outputSettings: FileSettings) -> Exporter:
+        return cls(logger, outputSettings)
 
 # vim: set et ts=4 sw=4 sts=4:

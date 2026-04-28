@@ -1,11 +1,13 @@
-from typing import List
+from typing import List, Any
+from logging import Logger
 from interfaces.testresult import TestResult
+from utils.config.config import OutputSettings
 
 
 class Exporter():
 
     @staticmethod
-    def init() -> object:
+    def init(logger: Logger, settings: Any) -> object:
         """Inits the exporter"""
         pass
 

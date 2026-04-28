@@ -46,7 +46,7 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
     if (config.settings.output.prometheus.enable):
         exporters.append(PrometheusExporter.init(logger, config))
     if (config.settings.output.console):
-        exporters.append(ConsoleExporter.init(settings.output))
+        exporters.append(ConsoleExporter.init(logger, settings.output))
     if (config.settings.output.file is not None):
         exporters.append(FileExporter.init(logger, settings.output.file))
     if len(exporters) <= 0:
