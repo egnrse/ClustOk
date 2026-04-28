@@ -45,8 +45,16 @@ There are some unit-tests in the [tests/](./tests/) directory.
 ```sh
 # install modules needed for the unit-tests
 pip install -U .[test]
-# run the tests
+# run tests
 pytest
+```
+
+There is partial support for static type checking:
+```sh
+# run tests with type checking
+pytest --mypy
+# type check the source code
+mypy src/
 ```
 
 -----

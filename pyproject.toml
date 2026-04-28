@@ -39,15 +39,22 @@ Repository = "https://hellogity.par.tuwien.ac.at/sysadmin/clustok"
 [project.scripts]
 clustok = "clustok:main"
 
+# unit test
 [tool.pytest.ini_options]
 addopts = "-ra -q"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test_*"]
 python_functions = ["test_*"]
 
 [project.optional-dependencies]
 test = [
 	"pytest>=8.0",
 	"pytest-subprocess",
+	"pytest-mypy", "types-PyYAML", "types-requests",
 	"requests",
 ]
+
+# type checking
+[tool.mypy]
+ignore_missing_imports = true

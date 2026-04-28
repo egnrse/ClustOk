@@ -11,7 +11,7 @@ from evaluator.baseEvaluator import BaseEvaluator
 eval_conf = {'tests': [{'name': 'Test min/max', 'descr': '', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 eval_input1 = {"Test min/max": [SingleResult(name="Test min/max", returncode=0, output="6", nodes="local")]}
 
-class TestBaseEvaluater:
+class Test_BaseEvaluater:
     # set 'output' values in the input structure
     def setInput(self, input, value):
         out = copy.deepcopy(input)

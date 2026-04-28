@@ -22,7 +22,7 @@ input = [
 	)
 ]
 
-class TestConsoleExporter:
+class Test_ConsoleExporter:
     def test_output(self, capsys):
         logger = CustomLogger('[ClustOk]')
         logger.setLevel(logging.DEBUG)
@@ -43,7 +43,7 @@ class TestConsoleExporter:
 file_conf = {'settings': {'output': {'file': {'dir': '/dev/null', 'fileName': 'testLog', 'format': 'json'}}}}
 filePretty_conf = {'settings': {'output': {'file': {'dir': '/dev/null', 'fileName': 'testLog', 'format': 'pretty'}}}}
 
-class TestfileExporter:
+class Test_FileExporter:
     def test_invalidPath(self, capsys):
         logger = CustomLogger('[ClustOk]')
         logger.setLevel(logging.DEBUG)
@@ -124,7 +124,7 @@ class TestfileExporter:
 EXPORTER_URL = "http://localhost:56531/metrics"
 prometheus_conf = {'settings': { 'output': {'prometheus': {'enable': True, 'port': 56531}}}, 'tests': [{'name': 'Test min/max', 'descr': '', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'Executes a script', 'script': {'path': './testscripts/datetest.sh'}}]}
 
-class TestPrometheusExporter:
+class Test_PrometheusExporter:
     # only one test because of port/registry collisions
     def test_ALL(self, capsys):
         logger = CustomLogger('[ClustOk]')

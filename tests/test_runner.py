@@ -12,7 +12,7 @@ from runner.localRunner import LocalTestRunner
 #slurm_conf_min = {'settings': {'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'tests': []}
 slurm_conf = {'settings': {'timeout': '-1', 'slurm': {'dir': './invalid/directory', 'partition': 'test_part', 'args': ['--comment="clustok test job"']}}, 'nodeLists': {'testCompute': {'nodeNames': 'testnode[01-9]'}}, 'tests': [{'name': 'SlurmScript', 'descr': '', 'slurmScript': {'path': './test.sh', 'nodeLists': 'testCompute'}}, {'name': 'SlurmPairScript', 'descr': '', 'slurmPairScript': {'path': './test.sh', 'nodeLists': 'testCompute', 'pairSize': 2}}]}
 
-class TestSlurmRunner:
+class Test_SlurmRunner:
     # prepare some general things
     def prepare(self, fp):
         # you need to register once per call
@@ -100,7 +100,7 @@ class TestSlurmRunner:
 
 local_conf = {'tests': [{'name': 'Command Test', 'descr': 'a description', 'command': 'echo 6', 'conditions': {'min': 5, 'max': 7}}, {'name': 'Script Test', 'descr': 'script description', 'script': {'path': './testpath/script.sh'}}]}
 
-class TestLocalRunner:
+class Test_LocalRunner:
     def raiseFileNotFoundError(self, process):
         process.returncode = 1
         raise FileNotFoundError("test exception raised by subprocess")
