@@ -20,17 +20,17 @@ class Color:
 class CustomFormatter(logging.Formatter):
     reset = "\x1b[0m"
     prefix = "%(asctime)s - %(name)s "
-    format = "%(levelname)s - %(message)s"
+    formatStr = "%(levelname)s - %(message)s"
 
     FORMATS = {
-        logging.DEBUG: prefix + Color.WHITE + format + reset,
-        logging.INFO: prefix + Color.GREEN + format + reset,
-        logging.WARNING: prefix + Color.YELLOW + format + reset,
-        logging.ERROR: prefix + Color.RED + format + reset,
-        logging.CRITICAL: prefix + Color.BOLD_RED + format + reset
+        logging.DEBUG: prefix + Color.WHITE + formatStr + reset,
+        logging.INFO: prefix + Color.GREEN + formatStr + reset,
+        logging.WARNING: prefix + Color.YELLOW + formatStr + reset,
+        logging.ERROR: prefix + Color.RED + formatStr + reset,
+        logging.CRITICAL: prefix + Color.BOLD_RED + formatStr + reset
     }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
@@ -43,7 +43,6 @@ class CustomLogger(logging.Logger):
         console.setFormatter(CustomFormatter())
 
         self.propagate = False
-
         self.addHandler(console)
 
         logging.basicConfig()  

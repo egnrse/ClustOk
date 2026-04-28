@@ -28,7 +28,7 @@ settings_schema = Schema({
 		},
     },
     Optional("logging"): {
-        "level": Or("INFO", "DEBUG", "CRITICAL", "ERROR", "WARN")
+        "level": Or("INFO", "DETAIL", "DEBUG", "CRITICAL", "ERROR", "WARN")
     }
 }, name="settings")
 

@@ -1,12 +1,6 @@
 from typing import List, Dict
-from logging import INFO, DEBUG, CRITICAL, ERROR, WARN
 from interfaces.test import Test
 
-
-class OutputSettings:
-    fileName: str
-    dir: str
-    format: str
 
 class SlurmSettings:
     dir: str
@@ -18,21 +12,30 @@ class NodeLists:
 
 class LoggingSettings:
     dir: str
-    level: INFO | DEBUG | CRITICAL | ERROR | WARN
+    level: int
+
+class FileSettings:
+    fileName: str
+    dir: str
+    format: str
 
 class PrometheusSettings:
     port: int
     enable: bool
 
+class OutputSettings:
+    file: FileSettings
+    console: bool
+    prometheus: PrometheusSettings
+
 class Settings:
     interval: int
     timeout: int
     slurm: SlurmSettings
-    prometheus: PrometheusSettings
     output: OutputSettings
+    logging: LoggingSettings
 
 class Config:
-    logging: LoggingSettings
     settings: Settings
     nodeLists: Dict[str, NodeLists]
     tests: List[Test]
