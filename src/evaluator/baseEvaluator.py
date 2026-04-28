@@ -58,7 +58,7 @@ class BaseEvaluator:
                 self.logger.debug(err)
                 self.logger.error("Result of test '%s' are not parseable as number, but numeric condition is specified!", name)
                 val: dict[str, SingleEval] = {}
-                error = f"Result not parseable as a number: '{",".join(outputs)}'"
+                error = f"Result not parseable as a number: '{','.join(outputs)}'"
                 for cond in self.SUPPORTED:
                     if hasattr(conditions, cond):
                         val[cond] = (False, None, float(getattr(conditions, cond)), error)

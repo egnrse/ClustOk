@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 
 # [did it pass, measured value, should value, error message]
-SingleEval = Tuple[bool, float|None, float, str|None]
+SingleEval = Tuple[bool, Optional[float], float, Optional[str]]
 
 
 @dataclass
