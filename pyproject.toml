@@ -15,7 +15,7 @@ authors = [
 maintainers = [
     {name = "Elia Nitsche", email = "elia.nitsche@tuwien.ac.at"},
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [
     "fire",
     "pyyaml",
@@ -26,8 +26,8 @@ dependencies = [
 classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]

@@ -1,25 +1,39 @@
 stages:
     - test
+    - type-check
 
-unit-test:
-    stage: test
-    image: python:3.12
-
+default:
+    image: python:3.9
     before_script:
         - python -m pip install --upgrade pip
         # install dependencies
         - pip install .[test]
 
+unit-test:
+    stage: test
     script:
-        - pytest --strict-markers --tb=short --junitxml=report.xml --durations=10 -v
-
+        - pytest --strict-markers --tb=short --junitxml=test-report.xml --durations=10 -v
     artifacts:
         when: always
         reports:
-            junit: report.xml
+            junit: test-report.xml
         paths:
-            - report.xml
+            - test-report.xml
         expire_in: 1 week
-
     only:
         - main
+
+mypy:
+    stage: type-check
+    script:
+    # run type checking
+    - mypy . --junit-xml mypy-report.xml --junit-format per_file
+    artifacts:
+        when: always
+        reports:
+          junit: mypy-report.xml
+        paths:
+          - mypy-report.xml
+        expire_in: 1 week
+    only:
+    - main
