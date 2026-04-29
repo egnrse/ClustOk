@@ -1,15 +1,17 @@
 from datetime import datetime
 
+from typing import List
 from logging import Logger
 from interfaces.exporter import Exporter
+from interfaces.testresult import TestResult
 from utils.config.config import OutputSettings
 
 
 class ConsoleExporter(Exporter):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def update(self, testResults):
+    def update(self, testResults: List[TestResult]) -> None:
 
         print("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n")
 
@@ -34,11 +36,11 @@ class ConsoleExporter(Exporter):
                 print(str(result.returncode), end=",")
                 print(result.output)
 
-    def destroy(self):
+    def destroy(self) -> None:
         pass     
 
     @staticmethod
-    def init(logger: Logger, settings: OutputSettings):
+    def init(logger: Logger, settings: OutputSettings) -> Exporter:
         exporter = ConsoleExporter()
         return exporter   
 

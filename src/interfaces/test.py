@@ -1,4 +1,4 @@
-from typing import Dict    
+from typing import Dict, List
 
 
 class Test:
@@ -17,13 +17,12 @@ class ScriptTest(Test):
 class SlurmScript:
     path: str
     nodeLists: str
+    options: List[str]
 class SlurmScriptTest(Test):
     slurmScript: SlurmScript
 
-class SlurmPairScript:
+class SlurmPairScript(SlurmScript):
     pairSize: int
-    path: str
-    nodeLists: str
 class SlurmScriptPairTest(Test):
     slurmPairScript: SlurmPairScript
 

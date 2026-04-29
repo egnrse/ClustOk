@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 from interfaces.test import Test
 
 
@@ -41,7 +41,7 @@ class Config:
     tests: List[Test]
 
 class DictToConf(Config):
-    def __init__(self, in_dict:dict):
+    def __init__(self, in_dict:Dict[str, Any]):
         assert isinstance(in_dict, dict)
         for key, val in in_dict.items():
             if isinstance(val, (list, tuple)):

@@ -1,8 +1,10 @@
 import json
 from datetime import datetime
 
+from typing import List, Dict, Any
 from logging import Logger
 from interfaces.exporter import Exporter
+from interfaces.testresult import TestResult
 from utils.config.config import FileSettings
 
 
@@ -16,7 +18,7 @@ class FileExporter(Exporter):
         self.rotate: str
         return
 
-    def update(self, testResults):
+    def update(self, testResults: List[TestResult]) -> None:
         fileName = datetime.now().strftime(self.fileName)
 
         if self.format == 'pretty':
@@ -26,11 +28,11 @@ class FileExporter(Exporter):
             self.jsonPrint(testResults, self.dir + '/' +  fileName)
             
 
-    def destroy(self):
+    def destroy(self) -> None:
         pass     
 
-    def jsonPrint(self, testResults, fileName):
-        jsoninfo = {}
+    def jsonPrint(self, testResults: List[TestResult], fileName: str) -> None:
+        jsoninfo: Dict[str, Any] = {}
         jsoninfo["testresults"] = testResults
         jsoninfo["timestamp"] = datetime.now().isoformat()
         jsonOut = json.dumps(jsoninfo, indent=4, default=lambda o: o.__dict__)
@@ -43,7 +45,7 @@ class FileExporter(Exporter):
             self.logger.error(f"Cannot open output file for writing: '{fileName}.json'")
             exit(1)
 
-    def prettyPrint(self, testResults, fileName):
+    def prettyPrint(self, testResults: List[TestResult], fileName: str) -> None:
         try:
             with open(fileName + ".txt", "w") as outputFile:
                 outputFile.write("ClustOk Testrun " + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\n\n")

@@ -51,12 +51,13 @@ class SlurmTestRunner(Runner):
 class SlurmHelper:
     # node states where tests should not run
     BAD_NODE_STATE = ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']
+
     def __init__(self, logger: Logger, config: Config):
         self.logger = logger
         self.config = config
         return
 
-    def getIdleNodes(self, nodeNames):
+    def getIdleNodes(self, nodeNames: str) -> Tuple[str, ...]:
         cmd = [self.config.settings.slurm.dir + '/sinfo',
                 '-hN',
                 '-O', 'NodeList,StateCompact',
@@ -79,7 +80,7 @@ class SlurmHelper:
         self.logger.info("%d/%d Nodes of %s are available for the test", len(nodes), len(nodeInfo), nodeNames)
         return nodes
 
-    def srun(self, test, node: str, name: str=""):
+    def srun(self, test: SlurmScript, node: str, name: str="") -> Tuple[str, subprocess.Popen[str]]:
         jobName="ClustOk "+name
         cmd = [self.config.settings.slurm.dir + '/srun',
                 '-J', jobName,
@@ -101,7 +102,7 @@ class SlurmHelper:
 
         return node, subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    def collectResults(self, processes: Set[Tuple[str, subprocess.Popen]], testName: str) -> List[SingleResult]:
+    def collectResults(self, processes: Set[Tuple[str, subprocess.Popen[str]]], testName: str) -> List[SingleResult]:
         results = []
         timeout = self.config.settings.timeout
         startTime = time.monotonic()
@@ -132,8 +133,8 @@ class SlurmHelper:
         return results
 
     def executeSlurmScriptInPairs(self, test: SlurmPairScript, name: str) -> List[SingleResult]:
-        nodes = self.parseNodeNames(test.nodeLists)
-        nodes = self.getIdleNodes(nodes)
+        nodeStr = self.parseNodeNames(test.nodeLists)
+        nodes = self.getIdleNodes(nodeStr)
 
         if test.pairSize > len(nodes):
             self.logger.warning("pairSize cant be greater than the amount of available nodes: %i > %i", test.pairSize, len(nodes))
@@ -165,8 +166,8 @@ class SlurmHelper:
         return self.collectResults(processes, name)
 
     def executeSlurmScript(self, test: SlurmScript, name: str) -> List[SingleResult]:
-        nodes = self.parseNodeNames(test.nodeLists)
-        nodes = self.getIdleNodes(nodes)
+        nodeStr = self.parseNodeNames(test.nodeLists)
+        nodes = self.getIdleNodes(nodeStr)
 
         processes = set()
 
@@ -177,12 +178,10 @@ class SlurmHelper:
 
         return self.collectResults(processes, name)
 
-    def parseNodeNames(self, nodeLists):
-        lists = nodeLists.split(',')
-
-        if len(lists) <= 1:
-            return getattr(self.config.nodeLists, lists[0]).nodeNames
-        
-        return reduce(lambda a, b: getattr(self.config.nodeLists, lists[a]).nodeNames + ',' + getattr(self.config.nodeLists, lists[b]).nodeNames, lists)
+    def parseNodeNames(self, nodeLists: str) -> str:
+        return ",".join(
+            getattr(self.config.nodeLists, name).nodeNames
+            for name in nodeLists.split(',')
+        )
 
 # vim: set et ts=4 sw=4 sts=4:

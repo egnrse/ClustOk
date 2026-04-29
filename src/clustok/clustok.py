@@ -2,10 +2,12 @@
 
 import time, fire, logging
 
-from typing import List
+from typing import List, Dict
 from interfaces.runner import Runner
 from interfaces.evaluator import Evaluator
 from interfaces.exporter import Exporter
+from interfaces.testresult import SingleResult
+from utils.config.config import Config
 
 from runner.localRunner import LocalTestRunner
 from runner.slurmRunner import SlurmTestRunner
@@ -18,7 +20,7 @@ from utils.logger.customLogger import CustomLogger
 
 
 # Called by fire after handling arguments
-def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
+def realmain(config:str="/etc/clustok/config.yml", repeat:bool=False, v:bool=False, vv:bool=False) -> None:
     exporters: List[Exporter] = []
     runners: List[Runner] = []
     evaluators: List[Evaluator] = []
@@ -33,28 +35,28 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
 
     # Load Config
     configManager = ConfigManager(logger, config)
-    config = configManager.config
-    settings = config.settings
+    cfg: Config = configManager.config
+    settings = cfg.settings
 
     if (not v and not vv):
         logger.setLevel(settings.logging.level)
 
-    evaluators.append(BaseEvaluator(logger, config))
-    runners.append(LocalTestRunner(logger, config))
-    runners.append(SlurmTestRunner(logger, config))
+    evaluators.append(BaseEvaluator(logger, cfg))
+    runners.append(LocalTestRunner(logger, cfg))
+    runners.append(SlurmTestRunner(logger, cfg))
 
-    if (config.settings.output.prometheus.enable):
-        exporters.append(PrometheusExporter.init(logger, config))
-    if (config.settings.output.console):
+    if (cfg.settings.output.prometheus.enable):
+        exporters.append(PrometheusExporter.init(logger, cfg))
+    if (cfg.settings.output.console):
         exporters.append(ConsoleExporter.init(logger, settings.output))
-    if (config.settings.output.file is not None):
+    if (cfg.settings.output.file is not None):
         exporters.append(FileExporter.init(logger, settings.output.file))
     if len(exporters) <= 0:
         logger.warn("No output type active (eg.: file/console/prometheus)")
 
     # Main Loop
     while True:
-        results: dict = {}
+        results: Dict[str, List[SingleResult]] = {}
 
         # Execute tests
         for runner in runners:
@@ -81,14 +83,14 @@ def realmain(config="/etc/clustok/config.yml", repeat=False, v=False, vv=False):
         if not repeat:
             break
 
-        logger.info("Waiting %d seconds", config.settings.interval)
-        time.sleep(config.settings.interval)
+        logger.info("Waiting %d seconds", cfg.settings.interval)
+        time.sleep(cfg.settings.interval)
 
     for exporter in exporters:
         exporter.destroy()
 
 # Handle arguments
-def main():
+def main() -> None:
     fire.Fire(realmain)
 
 # vim: set et ts=4 sw=4 sts=4:

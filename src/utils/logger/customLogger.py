@@ -36,7 +36,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 class CustomLogger(logging.Logger):
-    def __init__(self, name):
+    def __init__(self, name: str):
         logging.Logger.__init__(self, name, logging.WARNING)                
 
         console = logging.StreamHandler()

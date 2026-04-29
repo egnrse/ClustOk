@@ -9,13 +9,13 @@ class Exporter():
     @staticmethod
     def init(logger: Logger, settings: Any) -> object:
         """Inits the exporter"""
-        pass
+        raise NotImplementedError
 
-    def update(self, testResult: List[TestResult]):
+    def update(self, testResult: List[TestResult]) -> None:
         """Inserts the latest testresults for exportation"""
         pass
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Closes open handles"""
         pass
 

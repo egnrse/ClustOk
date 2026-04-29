@@ -1,14 +1,16 @@
 import logging
 
 from typing import List, Dict
+from interfaces.evaluator import Evaluator
 from interfaces.testresult import TestResult, SingleResult, SingleEval
+from utils.config.config import Config
 
 
-class BaseEvaluator:
+class BaseEvaluator(Evaluator):
     # what conditions this evaluator supports
     SUPPORTED = ["max", "min", "difference"]
     
-    def __init__(self, logger: logging.Logger, config):
+    def __init__(self, logger: logging.Logger, config: Config):
         self.logger = logger
         self.config = config
         return
@@ -48,7 +50,7 @@ class BaseEvaluator:
 
         return endResults
 
-    def evaluateSubCondition(self, outputs: List[str], conditions, name) -> Dict[str, SingleEval]:
+    def evaluateSubCondition(self, outputs: List[str], conditions: Dict[str, int], name: str) -> Dict[str, SingleEval]:
         evaluations: dict[str, SingleEval] = {}
 
         if any(hasattr(conditions, cond) for cond in self.SUPPORTED):

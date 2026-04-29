@@ -43,7 +43,7 @@ class LocalTestRunner(Runner):
 
         return results
 
-    def collectResults(self, process, testName: str) -> SingleResult:
+    def collectResults(self, process: subprocess.Popen[str], testName: str) -> SingleResult:
         p = process
         if p.poll() is None:
             timeout = self.config.settings.timeout
@@ -64,11 +64,11 @@ class LocalTestRunner(Runner):
         result = SingleResult(name=testName, returncode=returncode, output=stdout.rstrip(), nodes='local')
         return result
 
-    def executeCommand(self, command, testName: str) -> SingleResult:
+    def executeCommand(self, command: str, testName: str) -> SingleResult:
         process = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         return self.collectResults(process, testName)
 
-    def executeSingleBash(self, path, testName: str) -> SingleResult :
+    def executeSingleBash(self, path: str, testName: str) -> SingleResult:
         process = subprocess.Popen([path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         return self.collectResults(process, testName)
 

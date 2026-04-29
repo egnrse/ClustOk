@@ -2,8 +2,10 @@ import prometheus_client, math
 from prometheus_client.core import  REGISTRY
 from prometheus_client import start_http_server, Gauge, Enum
 
+from typing import List
 from logging import Logger
 from interfaces.exporter import Exporter
+from interfaces.testresult import TestResult
 from utils.config.config import Config
 
 
@@ -12,7 +14,7 @@ REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
 REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
 
 class PrometheusExporter(Exporter):
-    def __init__(self, logger, config: Config):
+    def __init__(self, logger: Logger, config: Config):
         self.logger = logger
         self.config = config
         self.gauges: dict[str, Gauge] = {}
@@ -30,7 +32,7 @@ class PrometheusExporter(Exporter):
                     self.gauges[name + "_required"].set(value)
 
 
-    def update(self, testResults):
+    def update(self, testResults: List[TestResult]) -> None:
         self.testResults = testResults
 
         # TODO: make this a config option
@@ -77,16 +79,16 @@ class PrometheusExporter(Exporter):
                     self.gauges[collectorNameStr].labels(output=str(result.output)).set(1)
 
                 try:
-                    self.gauges[collectorName].set(result["output"])
+                    self.gauges[collectorName].set(float(result.output))
                 except (ValueError, TypeError) as e:
                     self.gauges[collectorName].set(math.nan)
                     if not exportStrings:
                         self.logger.debug(f"{e}")
-                        self.logger.info(f"prometheus: ignoring result '{result['output']}' (NaN) from '{results.testName}'")
+                        self.logger.info(f"prometheus: ignoring result '{result.output}' (NaN) from '{results.testName}'")
    
 
     @staticmethod
-    def init(logger: Logger, config: Config):
+    def init(logger: Logger, config: Config) -> Exporter:
         exporter = PrometheusExporter(logger, config)
 
         exporter.logger.info('Starting prometheus server on port ' + str(config.settings.output.prometheus.port))

@@ -1,6 +1,7 @@
 from yaml import safe_load
 from schema import SchemaError
 
+from typing import Dict, Any
 from logging import Logger
 from utils.config.config import Config, DictToConf
 
@@ -9,13 +10,13 @@ from utils.config.defaults import DEFAULTS
 
 
 class ConfigManager(Config):
-    def __init__(self, logger: Logger, config):
+    def __init__(self, logger: Logger, configPath: str):
         self.logger = logger
 
         try:
-            with open(config, 'r') as configFile:
+            with open(configPath, 'r') as configFile:
                 # Load an validate config
-                config = safe_load(configFile)
+                config: Dict[str, Any] = safe_load(configFile)
                 self.validateConfig(config)
                 self.applyDefaults(config)
 
@@ -25,18 +26,18 @@ class ConfigManager(Config):
                 self.logger.info("Found %d tests", len(self.config.tests))
         except FileNotFoundError as e:
             self.logger.debug(f"{e}")
-            self.logger.error(f"Config file not found: '{config}'")
+            self.logger.error(f"Config file not found: '{configPath}'")
             exit(1)
 
-    def applyDefaults(self, config):
+    def applyDefaults(self, config: Dict[str, Any]) -> None:
         for section, values in DEFAULTS.items():
             config.setdefault(section, {})
             for k, v in values.items():
                 config[section].setdefault(k, v)
 
-    def validateConfig(self, config): 
+    def validateConfig(self, config: Dict[str, Any]) -> None: 
         try:
-            config_schema.validate(config, pass_error=True)
+            config_schema.validate(config, pass_error=True) # type: ignore[arg-type]
             self.logger.info('Configuration loaded sucessfully')
 
         except SchemaError as se:

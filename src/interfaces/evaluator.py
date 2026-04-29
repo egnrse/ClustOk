@@ -3,7 +3,7 @@ from interfaces.testresult import TestResult, SingleResult
 
 
 class Evaluator:
-    def evaluate(self, testResults: Dict[str,SingleResult]) -> List[TestResult]:
+    def evaluate(self, testResults: Dict[str,List[SingleResult]]) -> List[TestResult]:
         """Evaluates testResults"""
         raise NotImplementedError
 
