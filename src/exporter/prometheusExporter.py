@@ -35,8 +35,6 @@ class PrometheusExporter(Exporter):
     def update(self, testResults: List[TestResult]) -> None:
         self.testResults = testResults
 
-        # TODO: make this a config option
-        self.config.settings.output.prometheus.exportStrings = True
         if self.config.settings.output.prometheus.exportStrings:
             exportStrings = True
         else:

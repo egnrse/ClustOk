@@ -22,6 +22,7 @@ class FileSettings:
 class PrometheusSettings:
     port: int
     enable: bool
+    exportStrings: bool
 
 class OutputSettings:
     file: FileSettings

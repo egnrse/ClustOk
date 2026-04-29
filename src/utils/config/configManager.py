@@ -29,11 +29,13 @@ class ConfigManager(Config):
             self.logger.error(f"Config file not found: '{configPath}'")
             exit(1)
 
-    def applyDefaults(self, config: Dict[str, Any]) -> None:
-        for section, values in DEFAULTS.items():
-            config.setdefault(section, {})
-            for k, v in values.items():
-                config[section].setdefault(k, v)
+    def applyDefaults(self, config: Dict[str, Any], defaults: dict[str, Any] = DEFAULTS) -> None:
+        for key, value in defaults.items():
+            if isinstance(value, dict):
+                config.setdefault(key, {})
+                self.applyDefaults(config[key], value)
+            else:
+                config.setdefault(key, value)
 
     def validateConfig(self, config: Dict[str, Any]) -> None: 
         try:

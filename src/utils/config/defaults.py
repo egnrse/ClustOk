@@ -12,6 +12,7 @@ DEFAULTS = {
             "prometheus": {
                 "port": 8000,
                 "enable": False,
+                "exportStrings": True,
             },
         }
     }

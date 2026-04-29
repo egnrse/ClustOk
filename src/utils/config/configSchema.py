@@ -16,16 +16,17 @@ settings_schema = Schema({
         Optional("args"): [str],
     },
     Optional("output"): {
-		Optional("file"): {
-			"dir": str,
-			"fileName": str,
-			"format": Or("pretty", "json"),
-		},
-		Optional("console"): bool,
-		Optional("prometheus"): {
-			"port": int,
-			"enable": bool
-		},
+        Optional("file"): {
+            "dir": str,
+            "fileName": str,
+            "format": Or("pretty", "json"),
+        },
+        Optional("console"): bool,
+        Optional("prometheus"): {
+            "port": int,
+            "enable": bool,
+            Optional("exportStrings"): bool,
+        },
     },
     Optional("logging"): {
         "level": Or("INFO", "DETAIL", "DEBUG", "CRITICAL", "ERROR", "WARN")
