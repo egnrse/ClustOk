@@ -49,6 +49,8 @@ class SlurmTestRunner(Runner):
 
 
 class SlurmHelper:
+    # node states where tests should not run
+    BAD_NODE_STATE = ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']
     def __init__(self, logger: Logger, config: Config):
         self.logger = logger
         self.config = config
@@ -66,10 +68,13 @@ class SlurmHelper:
         #self.logger.debug("cmd: %s", cmd)
         result = subprocess.run(cmd, stdout=subprocess.PIPE)
         nodeInfo = result.stdout.decode('utf-8').splitlines()
-        nodes = *map(lambda node: tuple(node.split()), nodeInfo),
-        nodes = *filter(lambda node: (node[1] not in ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']), nodes),
+        parsed = (line.split() for line in nodeInfo)
 
-        nodes = *list(map(lambda node: node[0], nodes)),
+        nodes = tuple(
+            node[0]
+            for node in parsed
+            if node[1] not in self.BAD_NODE_STATE
+        )
 
         self.logger.info("%d/%d Nodes of %s are available for the test", len(nodes), len(nodeInfo), nodeNames)
         return nodes
