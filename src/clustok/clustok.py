@@ -90,7 +90,11 @@ def realmain(config:str="/etc/clustok/config.yml", repeat:bool=False, v:bool=Fal
         exporter.destroy()
 
 # Handle arguments
-def main() -> None:
-    fire.Fire(realmain)
+def main() -> int:
+    try:
+        fire.Fire(realmain)
+        return 0
+    except KeyboardInterrupt:
+        return 130
 
 # vim: set et ts=4 sw=4 sts=4:
