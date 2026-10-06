@@ -50,7 +50,7 @@ class SlurmTestRunner(Runner):
 
 class SlurmHelper:
     # node states where tests should not run
-    BAD_NODE_STATE = ['down', 'drain', 'down*', 'drain*', 'boot^', 'boot^*', 'boot*']
+    BAD_NODE_STATE = ['down', 'down*', 'drain', 'drain*', 'boot^', 'boot^*', 'boot*', 'unk*', 'inval']
 
     def __init__(self, logger: Logger, config: Config):
         self.logger = logger
